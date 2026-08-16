@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -526,14 +527,14 @@
     let undoStack = [];
     let currentZoom = 1.0;
 
-    // كائن التحكم بالصورة المرفوعة والتحريك والتكبير والتصغير
+    // متطلبات التحريك والتعديل على الصورة المرفوعة
     let uploadedImgObj = null;
     let imgTransform = { x: 50, y: 50, w: 300, h: 300 };
     let isDraggingImg = false;
     let isResizingImg = false;
     let resizeHandle = null;
     let dragStart = { x: 0, y: 0 };
-    const handleSize = 10;
+    const handleSize = 14;
 
     function updateCanvasZoom() {
       canvas.style.transform = `scale(${currentZoom})`;
@@ -614,9 +615,11 @@
 
     document.getElementById('btnLockImage').onclick = () => {
       if (uploadedImgObj) {
+        ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
+        ctx.drawImage(uploadedImgObj, imgTransform.x, imgTransform.y, imgTransform.w, imgTransform.h);
         uploadedImgObj = null;
         document.getElementById('btnLockImage').style.display = 'none';
-        redrawCanvas();
+        canvas.style.cursor = 'crosshair';
         saveState();
       }
     };
@@ -795,9 +798,11 @@
 
     function getPos(e) {
       const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       return {
-        x: (e.clientX - rect.left) * (canvas.width / rect.width),
-        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+        x: (clientX - rect.left) * (canvas.width / rect.width),
+        y: (clientY - rect.top) * (canvas.height / rect.height)
       };
     }
 
@@ -827,14 +832,14 @@
       ctx.stroke();
     }
 
-    canvas.onmousedown = (e) => {
+    function startAction(e) {
       const pos = getPos(e);
 
       if (uploadedImgObj) {
         const handles = getHandles();
         for (let key in handles) {
           const h = handles[key];
-          if (Math.hypot(pos.x - h.x, pos.y - h.y) <= handleSize) {
+          if (Math.hypot(pos.x - h.x, pos.y - h.y) <= handleSize * 1.5) {
             isResizingImg = true;
             resizeHandle = key;
             dragStart = pos;
@@ -850,6 +855,7 @@
         ) {
           isDraggingImg = true;
           dragStart = { x: pos.x - imgTransform.x, y: pos.y - imgTransform.y };
+          canvas.style.cursor = 'move';
           return;
         }
       }
@@ -874,10 +880,35 @@
         ctx.beginPath();
         ctx.moveTo(startX, startY);
       }
-    };
+    }
 
-    canvas.onmousemove = (e) => {
+    function moveAction(e) {
       const pos = getPos(e);
+
+      if (uploadedImgObj) {
+        let hoveringHandle = false;
+        const handles = getHandles();
+        for (let key in handles) {
+          const h = handles[key];
+          if (Math.hypot(pos.x - h.x, pos.y - h.y) <= handleSize * 1.5) {
+            hoveringHandle = true;
+            break;
+          }
+        }
+
+        if (hoveringHandle) {
+          canvas.style.cursor = 'pointer';
+        } else if (
+          pos.x >= imgTransform.x &&
+          pos.x <= imgTransform.x + imgTransform.w &&
+          pos.y >= imgTransform.y &&
+          pos.y <= imgTransform.y + imgTransform.h
+        ) {
+          canvas.style.cursor = 'move';
+        } else {
+          canvas.style.cursor = 'crosshair';
+        }
+      }
 
       if (isResizingImg) {
         const dx = pos.x - dragStart.x;
@@ -889,8 +920,8 @@
         if (resizeHandle.includes('b')) imgTransform.h += dy;
         if (resizeHandle.includes('t')) { imgTransform.y += dy; imgTransform.h -= dy; }
 
-        if (imgTransform.w < 20) imgTransform.w = 20;
-        if (imgTransform.h < 20) imgTransform.h = 20;
+        if (imgTransform.w < 30) imgTransform.w = 30;
+        if (imgTransform.h < 30) imgTransform.h = 30;
 
         redrawCanvas();
         return;
@@ -948,9 +979,9 @@
         const radius = Math.hypot(pos.x - startX, pos.y - startY);
         drawStar(startX, startY, 5, radius, radius / 2);
       }
-    };
+    }
 
-    canvas.onmouseup = () => {
+    function endAction() {
       if (isResizingImg || isDraggingImg) {
         isResizingImg = false;
         isDraggingImg = false;
@@ -961,7 +992,15 @@
         isDrawing = false;
         saveState();
       }
-    };
+    }
+
+    canvas.addEventListener('mousedown', startAction);
+    canvas.addEventListener('mousemove', moveAction);
+    canvas.addEventListener('mouseup', endAction);
+
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startAction(e); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); moveAction(e); });
+    canvas.addEventListener('touchend', endAction);
 
     function floodFill(startX, startY, fillColorHex) {
       const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
