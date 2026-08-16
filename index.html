@@ -357,10 +357,7 @@
       transition: all 0.2s;
     }
 
-    .sticker-menu-btn:hover {
-      transform: scale(1.15);
-    }
-
+    .sticker-menu-btn:hover { transform: scale(1.15); }
     .sticker-menu-btn.btn-confirm { background: #10b981; }
     .sticker-menu-btn.btn-delete { background: #ef4444; }
     .sticker-menu-btn.btn-remove-bg { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
@@ -474,7 +471,6 @@
         <input type="text" id="stickerSearch" class="sticker-search-input" placeholder="🔍 ابحث (باندا, شمس, قطة, طائرة, بيتزا...)...">
 
         <div class="sticker-grid" id="stickerGrid">
-          <!-- SVG Data-URIs مضمنة حاسوبياً لضمان قراءة الألوان وإزالة الخلفية بدقة -->
           <div class="sticker-card" data-name="باندا panda دب حيوان" data-svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="25" cy="25" r="15" fill="#000"/><circle cx="75" cy="25" r="15" fill="#000"/><circle cx="50" cy="55" r="35" fill="#fff" stroke="#000" stroke-width="4"/><ellipse cx="38" cy="50" rx="8" ry="12" fill="#000"/><ellipse cx="62" cy="50" rx="8" ry="12" fill="#000"/><circle cx="38" cy="48" r="3" fill="#fff"/><circle cx="62" cy="48" r="3" fill="#fff"/><ellipse cx="50" cy="65" rx="6" ry="4" fill="#000"/></svg>'><img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="25" cy="25" r="15" fill="%23000"/><circle cx="75" cy="25" r="15" fill="%23000"/><circle cx="50" cy="55" r="35" fill="%23fff" stroke="%23000" stroke-width="4"/><ellipse cx="38" cy="50" rx="8" ry="12" fill="%23000"/><ellipse cx="62" cy="50" rx="8" ry="12" fill="%23000"/><circle cx="38" cy="48" r="3" fill="%23fff"/><circle cx="62" cy="48" r="3" fill="%23fff"/><ellipse cx="50" cy="65" rx="6" ry="4" fill="%23000"/></svg>' alt="باندا"></div>
 
           <div class="sticker-card" data-name="قطة cat قطه حيوان" data-svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="20,10 35,40 10,40" fill="#f97316"/><polygon points="80,10 65,40 90,40" fill="#f97316"/><circle cx="50" cy="55" r="35" fill="#fb923c"/><circle cx="38" cy="50" r="5" fill="#000"/><circle cx="62" cy="50" r="5" fill="#000"/><polygon points="50,60 45,66 55,66" fill="#ef4444"/></svg>'><img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="20,10 35,40 10,40" fill="%23f97316"/><polygon points="80,10 65,40 90,40" fill="%23f97316"/><circle cx="50" cy="55" r="35" fill="%23fb923c"/><circle cx="38" cy="50" r="5" fill="%23000"/><circle cx="62" cy="50" r="5" fill="%23000"/><polygon points="50,60 45,66 55,66" fill="%23ef4444"/></svg>' alt="قطة"></div>
@@ -602,42 +598,46 @@
       redrawCanvas();
     };
 
-    // خوارزمية إزالة الخلفية المحسنة مع معالجة أحداث العزل الآمن
+    // خوارزمية إزالة الخلفية البيضاء الشاملة مع الحماية من القيود الأمنية
     function removeBackgroundFromActiveObj() {
       if (!activeObj || !activeObj.img) {
-        alert('يرجى تحديد أو رفع صورة أو ملصق أولاً!');
+        alert('يرجى رفع أو اختيار عنصر أولاً!');
         return;
       }
 
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d');
-      const w = activeObj.img.naturalWidth || activeObj.img.width || 300;
-      const h = activeObj.img.naturalHeight || activeObj.img.height || 300;
-      tempCanvas.width = w;
-      tempCanvas.height = h;
+      try {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        const w = activeObj.img.naturalWidth || activeObj.img.width || 300;
+        const h = activeObj.img.naturalHeight || activeObj.img.height || 300;
+        tempCanvas.width = w;
+        tempCanvas.height = h;
 
-      tempCtx.drawImage(activeObj.img, 0, 0, w, h);
-      const imgData = tempCtx.getImageData(0, 0, w, h);
-      const data = imgData.data;
+        tempCtx.drawImage(activeObj.img, 0, 0, w, h);
+        const imgData = tempCtx.getImageData(0, 0, w, h);
+        const data = imgData.data;
 
-      // إزالة جميع البكسلات البيضاء والرمادية الفاتحة وحوافها
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        if (r >= 210 && g >= 210 && b >= 210) {
-          data[i + 3] = 0; // تحويل إلى شفاف تام
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          // تفريغ الخلفية البيضاء والفاتحة بنسبة تسامح ذكية
+          if (r >= 200 && g >= 200 && b >= 200) {
+            data[i + 3] = 0;
+          }
         }
+
+        tempCtx.putImageData(imgData, 0, 0);
+
+        const transparentImg = new Image();
+        transparentImg.onload = () => {
+          activeObj.img = transparentImg;
+          redrawCanvas();
+        };
+        transparentImg.src = tempCanvas.toDataURL();
+      } catch (e) {
+        alert('تعذر إزالة الخلفية لهذا الملف، يرجى استخدام صورة مرفوعة مباشرة من جهازك.');
       }
-
-      tempCtx.putImageData(imgData, 0, 0);
-
-      const transparentImg = new Image();
-      transparentImg.onload = () => {
-        activeObj.img = transparentImg;
-        redrawCanvas();
-      };
-      transparentImg.src = tempCanvas.toDataURL();
     }
 
     document.getElementById('btnRemoveBg').onclick = removeBackgroundFromActiveObj;
