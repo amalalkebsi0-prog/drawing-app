@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>توليد وتلوين الصور - الأبيض والأسود</title>
+    <title>توليد وتلوين الصور بالذكاء الاصطناعي</title>
     <style>
         :root {
             --primary-color: #4f46e5;
@@ -51,7 +51,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            max-width: 1000px;
+            max-width: 1050px;
             width: 100%;
             justify-content: center;
         }
@@ -68,7 +68,7 @@
 
         .controls-panel {
             width: 100%;
-            max-width: 300px;
+            max-width: 320px;
             gap: 15px;
         }
 
@@ -78,35 +78,33 @@
         }
 
         .section-title {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
+            font-size: 1.05rem;
+            margin-bottom: 8px;
             color: #374151;
             font-weight: 600;
             align-self: flex-start;
         }
 
-        .templates-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+        .ai-input-group {
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             margin-bottom: 15px;
         }
 
-        .template-btn {
-            background: #f9fafb;
+        .ai-input-group input[type="text"] {
+            width: 100%;
+            padding: 10px;
             border: 2px solid var(--border-color);
             border-radius: 8px;
-            padding: 10px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
             font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        .template-btn:hover {
+        .ai-input-group input[type="text"]:focus {
             border-color: var(--primary-color);
-            background: #eef2ff;
         }
 
         .tools-group {
@@ -157,6 +155,7 @@
             width: 100%;
             transition: background-color 0.2s;
             margin-top: 5px;
+            text-align: center;
         }
 
         .btn:hover {
@@ -196,28 +195,70 @@
             width: 100%;
             margin-top: 15px;
         }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--primary-color);
+            z-index: 10;
+            display: none;
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>استوديو تلوين ورسم الصور</h1>
-        <p>اختر رسماً بالأبيض والأسود، ثم استخدم أدوات التلوين لإبداع صورتك الخاصة</p>
+        <h1>استوديو التلوين بالذكاء الاصطناعي</h1>
+        <p>ولد رسومات تلوين دقيقة عبر الذكاء الاصطناعي، أو ارفع صورتك، ولونها بكل حرية</p>
     </header>
 
     <div class="main-container">
-        <!-- لوحة التحكم والخيارات -->
+        <!-- لوحة التحكم -->
         <div class="card controls-panel">
-            <div class="section-title">1. اختر رسماً جاهزاً</div>
-            <div class="templates-grid">
-                <button class="template-btn" onclick="loadTemplate('cat')">🐱 قطة ظريفة</button>
-                <button class="template-btn" onclick="loadTemplate('car')">🚗 سيارة رياضية</button>
-                <button class="template-btn" onclick="loadTemplate('flower')">🌸 زهرة جميلة</button>
-                <button class="template-btn" onclick="loadTemplate('house')">🏠 منزل ريفي</button>
+            
+            <!-- قسم توليد الذكاء الاصطناعي -->
+            <div class="section-title">🤖 توليد رسمة بالذكاء الاصطناعي</div>
+            <div class="ai-input-group">
+                <input type="text" id="aiPrompt" placeholder="اكتب ما تريد رسمه (مثلاً: قطة لطيفة، سيارة سباق...)" />
+                <button class="btn" style="background-color: #8b5cf6;" onclick="generateAIPicture()">توليد الرسمة بالذكاء الاصطناعي</button>
+            </div>
+
+            <!-- قسم رفع أو اختيار صور -->
+            <div class="section-title" style="margin-top: 10px;">📁 أو رفع صورة من جهازك</div>
+            <div class="upload-btn-wrapper">
+                <button class="btn" style="background-color: #10b981;">اختر ملف الصورة</button>
+                <input type="file" id="imageUploader" accept="image/png, image/jpeg, image/jpg" />
             </div>
 
             <div class="tools-group">
-                <div class="section-title" style="margin-bottom: 5px;">2. أدوات التلوين</div>
+                <div class="section-title" style="margin-bottom: 5px;">🎨 أدوات التلوين</div>
                 
                 <div class="tool-row">
                     <label>لون الفرشاة:</label>
@@ -236,14 +277,18 @@
             </div>
 
             <div class="tools-group">
-                <button class="btn btn-secondary" onclick="clearCanvas()">إعادة تعيين اللوحة</button>
+                <button class="btn btn-secondary" onclick="clearCanvas()">مسح الألوان فقط</button>
+                <button class="btn btn-secondary" onclick="resetCanvasBackground()" style="background-color: #ef4444;">مسح اللوحة بالكامل</button>
             </div>
         </div>
 
-        <!-- لوحة الرسم العرضية -->
+        <!-- لوحة الرسم والعرض -->
         <div class="card canvas-panel">
             <div class="section-title">لوحة الرسم والتلوين</div>
             <div class="canvas-wrapper" id="canvasWrapper">
+                <div class="loading-overlay" id="loadingOverlay">
+                    <span>جاري توليد الرسمة بالذكاء الاصطناعي... 🎨</span>
+                </div>
                 <canvas id="drawingCanvas" width="500" height="380"></canvas>
             </div>
             
@@ -258,83 +303,121 @@
         const ctx = canvas.getContext('2d');
         const colorPicker = document.getElementById('colorPicker');
         const brushSize = document.getElementById('brushSize');
+        const imageUploader = document.getElementById('imageUploader');
+        const aiPromptInput = document.getElementById('aiPrompt');
+        const loadingOverlay = document.getElementById('loadingOverlay');
 
         let isDrawing = false;
-        let currentTemplateImage = new Image();
         let isEraser = false;
+        let currentImageObj = null;
 
-        // إعداد خلفية بيضاء افتراضية للوحة
         window.onload = () => {
             resetCanvasBackground();
-            loadTemplate('cat'); // تحميل قالب افتراضي عند البدء
+            drawDefaultWelcome();
         };
 
-        function resetCanvasBackground() {
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        function drawDefaultWelcome() {
+            ctx.fillStyle = "#000000";
+            ctx.font = "20px 'Segoe UI'";
+            ctx.textAlign = "center";
+            ctx.fillText("اكتب شيئاً بالأعلى لتوليده بالذكاء الاصطناعي", canvas.width / 2, canvas.height / 2);
         }
 
-        // رسم قوالب بالأبيض والأسود برمجياً كأمثلة (خطوط سوداء واضحة)
-        function loadTemplate(type) {
-            resetCanvasBackground();
-            ctx.strokeStyle = "#000000";
-            ctx.lineWidth = 4;
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
+        function resetCanvasBackground() {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            currentImageObj = null;
+            imageUploader.value = '';
+        }
 
-            if (type === 'cat') {
-                // رسم وجه قطة بسيط
-                ctx.beginPath();
-                // الرأس
-                ctx.arc(250, 200, 100, 0, Math.PI * 2);
-                // الأذنان
-                ctx.moveTo(170, 130); ctx.lineTo(130, 60); ctx.lineTo(200, 115);
-                ctx.moveTo(330, 130); ctx.lineTo(370, 60); ctx.lineTo(300, 115);
-                // العينان
-                ctx.arc(210, 170, 10, 0, Math.PI * 2);
-                ctx.arc(290, 170, 10, 0, Math.PI * 2);
-                // الأنف والفم
-                ctx.moveTo(250, 195); ctx.lineTo(240, 210); ctx.lineTo(260, 210); ctx.closePath();
-                ctx.moveTo(250, 210); ctx.lineTo(250, 225);
-                ctx.stroke();
-            } else if (type === 'car') {
-                // رسم سيارة مبسطة
-                ctx.strokeRect(150, 180, 200, 80);
-                ctx.beginPath();
-                ctx.moveTo(190, 180); ctx.lineTo(220, 120); ctx.lineTo(280, 120); ctx.lineTo(310, 180);
-                // العجلات
-                ctx.arc(200, 260, 30, 0, Math.PI * 2);
-                ctx.arc(300, 260, 30, 0, Math.PI * 2);
-                ctx.stroke();
-            } else if (type === 'flower') {
-                // رسم زهرة
-                ctx.beginPath();
-                for (let i = 0; i < 6; i++) {
-                    let angle = (i * Math.PI) / 3;
-                    let x = 250 + Math.cos(angle) * 50;
-                    let y = 190 + Math.sin(angle) * 50;
-                    ctx.moveTo(250, 190);
-                    ctx.arc(x, y, 40, 0, Math.PI * 2);
+        // توليد الصور عبر الذكاء الاصطناعي باستخدام نموذج رسم الخطوط (Line Art)
+        async function generateAIPicture() {
+            const promptText = aiPromptInput.value.trim();
+            if (!promptText) {
+                alert("الرجاء كتابة وصف للشيء الذي تريد توليده أولاً!");
+                return;
+            }
+
+            loadingOverlay.style.display = 'flex';
+
+            // إضافة وصف إلزامي لضمان خروج الصورة بشكل خطوط تلوين بيضاء وسوداء دقيقة
+            const enhancedPrompt = `black and white coloring book page, line art, clean outlines, white background, minimalist, vector style of ${promptText}`;
+            const encodedPrompt = encodeURIComponent(enhancedPrompt);
+            
+            // رابط مجاني لتوليد الصور بالذكاء الاصطناعي فوراً
+            const aiImageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=500&height=380&nologo=true`;
+
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = function() {
+                resetCanvasBackground();
+                
+                const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                const newWidth = img.width * scale;
+                const newHeight = img.height * scale;
+                const x = (canvas.width / 2) - (newWidth / 2);
+                const y = (canvas.height / 2) - (newHeight / 2);
+
+                ctx.drawImage(img, x, y, newWidth, newHeight);
+                currentImageObj = img;
+                loadingOverlay.style.display = 'none';
+            };
+
+            img.onerror = function() {
+                loadingOverlay.style.display = 'none';
+                alert("حدث خطأ أثناء توليد الصورة، يرجى المحاولة مرة أخرى.");
+            };
+
+            img.src = aiImageUrl;
+        }
+
+        // رفع صورة من الجهاز
+        imageUploader.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    resetCanvasBackground();
+                    const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                    const newWidth = img.width * scale;
+                    const newHeight = img.height * scale;
+                    const x = (canvas.width / 2) - (newWidth / 2);
+                    const y = (canvas.height / 2) - (newHeight / 2);
+
+                    ctx.drawImage(img, x, y, newWidth, newHeight);
+                    currentImageObj = img;
                 }
-                // مركز الزهرة
-                ctx.arc(250, 190, 30, 0, Math.PI * 2);
-                // الساق
-                ctx.moveTo(250, 220); ctx.lineTo(250, 350);
-                ctx.stroke();
-            } else if (type === 'house') {
-                // رسم منزل
-                ctx.strokeRect(170, 180, 160, 150);
-                ctx.beginPath();
-                // السقف
-                ctx.moveTo(150, 180); ctx.lineTo(250, 90); ctx.lineTo(350, 180);
-                // الباب والنافذة
-                ctx.rect(230, 250, 40, 80);
-                ctx.rect(190, 200, 40, 40);
-                ctx.stroke();
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        function clearCanvas() {
+            if (confirm("هل أنت متأكد من مسح الألوان؟")) {
+                if (currentImageObj) {
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    const scale = Math.min(canvas.width / currentImageObj.width, canvas.height / currentImageObj.height);
+                    const newWidth = currentImageObj.width * scale;
+                    const newHeight = currentImageObj.height * scale;
+                    const x = (canvas.width / 2) - (newWidth / 2);
+                    const y = (canvas.height / 2) - (newHeight / 2);
+                    
+                    ctx.drawImage(currentImageObj, x, y, newWidth, newHeight);
+                } else {
+                    resetCanvasBackground();
+                    drawDefaultWelcome();
+                }
             }
         }
 
-        // أحداث الماوس واللمس للرسم
+        // أحداث الرسم والتلوين
         function getMousePos(e) {
             const rect = canvas.getBoundingClientRect();
             return {
@@ -364,8 +447,10 @@
             ctx.lineJoin = 'round';
 
             if (isEraser) {
-                ctx.strokeStyle = '#ffffff';
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.strokeStyle = 'rgba(0,0,0,1)';
             } else {
+                ctx.globalCompositeOperation = 'multiply'; // يجعل التلوين تحت الخطوط السوداء للرسمة
                 ctx.strokeStyle = colorPicker.value;
             }
 
@@ -375,33 +460,31 @@
             ctx.moveTo(pos.x, pos.y);
         }
 
-        // ربط الأحداث باللوحة
         canvas.addEventListener('mousedown', startPosition);
         canvas.addEventListener('mouseup', endPosition);
         canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseout', endPosition);
 
         canvas.addEventListener('touchstart', startPosition);
         canvas.addEventListener('touchend', endPosition);
         canvas.addEventListener('touchmove', draw);
 
-        function setEraser() {
-            isEraser = true;
-        }
-
-        function setBrush() {
-            isEraser = false;
-        }
-
-        function clearCanvas() {
-            if (confirm("هل أنت متأكد من رغبتك في مسح اللوحة وإعادة تعيينها؟")) {
-                resetCanvasBackground();
-            }
-        }
+        function setEraser() { isEraser = true; }
+        function setBrush() { isEraser = false; }
 
         function saveImage() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tCtx = tempCanvas.getContext('2d');
+            
+            tCtx.fillStyle = '#ffffff';
+            tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            tCtx.drawImage(canvas, 0, 0);
+
             const link = document.createElement('a');
-            link.download = 'colored-artwork.png';
-            link.href = canvas.toDataURL();
+            link.download = 'ai-colored-artwork.png';
+            link.href = tempCanvas.toDataURL();
             link.click();
         }
     </script>
