@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>استوديو الرسم والتلوين - إصدار محدث</title>
+    <title>استوديو الرسم والتلوين الاحترافي</title>
     <style>
         body { background: #333; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; color: white; }
         .toolbar { background: #444; padding: 15px; border-radius: 8px; display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
@@ -27,18 +27,17 @@
 </div>
 
 <div class="canvas-area">
-    <div><p>الصورة الأصلية (مرجع):</p><canvas id="ref" width="300" height="225"></canvas></div>
-    <div><p>لوحة الرسم:</p><canvas id="main" width="800" height="600"></canvas></div>
+    <div><p>الصورة الأصلية:</p><canvas id="ref" width="300" height="225"></canvas></div>
+    <div><p>لوحة الرسم (مساحة أكبر):</p><canvas id="main" width="800" height="600"></canvas></div>
 </div>
 
 <script>
-    const refCanvas = document.getElementById('ref');
-    const refCtx = refCanvas.getContext('2d');
+    const refCtx = document.getElementById('ref').getContext('2d');
     const mainCanvas = document.getElementById('main');
     const ctx = mainCanvas.getContext('2d');
     let color = '#000000', drawing = false;
 
-    // إضافة الألوان
+    // تهيئة الألوان
     ['#000', '#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff', '#ffa500'].forEach(c => {
         let b = document.createElement('div');
         b.className = 'color-btn'; b.style.background = c;
@@ -51,11 +50,6 @@
         reader.onload = (ev) => {
             const img = new Image();
             img.onload = () => {
-                // [حل المشكلة]: مسح اللوحات تماماً قبل رسم الصورة الجديدة
-                refCtx.clearRect(0, 0, 300, 225);
-                ctx.clearRect(0, 0, 800, 600);
-                
-                // رسم الصور الجديدة
                 refCtx.drawImage(img, 0, 0, 300, 225);
                 ctx.drawImage(img, 0, 0, 800, 600);
             };
@@ -90,16 +84,16 @@
 
     mainCanvas.onmouseup = () => drawing = false;
 
-    // وظيفة الدلو
+    // وظيفة الدلو (تعبئة المساحات)
     function floodFill(startX, startY, fillColor) {
         const imageData = ctx.getImageData(0, 0, 800, 600);
         const data = imageData.data;
-        const startPos = (Math.floor(startY) * 800 + Math.floor(startX)) * 4;
+        const startPos = (startY * 800 + startX) * 4;
         const startR = data[startPos], startG = data[startPos+1], startB = data[startPos+2];
         
         if(startR === fillColor.r && startG === fillColor.g && startB === fillColor.b) return;
         
-        let pixelStack = [[Math.floor(startX), Math.floor(startY)]];
+        let pixelStack = [[startX, startY]];
         while(pixelStack.length) {
             let [x, y] = pixelStack.pop();
             let pos = (y * 800 + x) * 4;
