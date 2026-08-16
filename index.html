@@ -238,7 +238,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      max-height: 220px;
+      max-height: 280px;
       overflow-y: auto;
       padding-left: 4px;
     }
@@ -247,7 +247,7 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      padding: 10px;
+      padding: 8px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -329,7 +329,6 @@
       transition: transform 0.1s ease;
     }
 
-    /* أزرار التحكم العلوية للملصق تماماً مثل Sketchpad */
     .sticker-floating-menu {
       position: absolute;
       display: none;
@@ -469,39 +468,43 @@
         </label>
       </div>
 
-      <!-- قسم الملصقات والقصاصات الفنية على طريقة Sketchpad -->
+      <!-- مكتبة ملصقات غنية ومرسومة بدقة المماثلة لـ Sketchpad -->
       <div class="tool-section">
-        <h3>🐼 مكتبة الملصقات (Clipart)</h3>
-        <input type="text" id="stickerSearch" class="sticker-search-input" placeholder="🔍 ابحث عن ملصق (باندا, شمس, نجمة...)...">
+        <h3>🐼 مكتبة الملصقات الفنية (Clipart)</h3>
+        <input type="text" id="stickerSearch" class="sticker-search-input" placeholder="🔍 ابحث عن ملصق (باندا, قطة, طائرة, بيتزا...)...">
 
         <div class="sticker-grid" id="stickerGrid">
-          <div class="sticker-card" data-name="باندا panda دب" data-src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png" alt="باندا">
-          </div>
-          <div class="sticker-card" data-name="طفل baby صغير" data-src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png" alt="طفل">
-          </div>
-          <div class="sticker-card" data-name="شمس sun صيف" data-src="https://cdn-icons-png.flaticon.com/512/869/869869.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" alt="شمس">
-          </div>
-          <div class="sticker-card" data-name="نجمة star حظ" data-src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="نجمة">
-          </div>
-          <div class="sticker-card" data-name="قلب heart أحمر" data-src="https://cdn-icons-png.flaticon.com/512/833/833472.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="قلب">
-          </div>
-          <div class="sticker-card" data-name="قطة cat قطه" data-src="https://cdn-icons-png.flaticon.com/512/616/616430.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/616/616430.png" alt="قطة">
-          </div>
-          <div class="sticker-card" data-name="وردة زهرة flower" data-src="https://cdn-icons-png.flaticon.com/512/346/346167.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/346/346167.png" alt="وردة">
-          </div>
-          <div class="sticker-card" data-name="صاروخ rocket فضاء" data-src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png" alt="صاروخ">
-          </div>
-          <div class="sticker-card" data-name="تاج crown ملك" data-src="https://cdn-icons-png.flaticon.com/512/616/616490.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/616/616490.png" alt="تاج">
-          </div>
+          <!-- الحيوانات -->
+          <div class="sticker-card" data-name="باندا panda دب حيوان" data-src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png"><img src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png" alt="باندا"></div>
+          <div class="sticker-card" data-name="قطة cat قطه حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616430.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616430.png" alt="قطة"></div>
+          <div class="sticker-card" data-name="كلب dog حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616408.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="كلب"></div>
+          <div class="sticker-card" data-name="وحيد القرن unicorn خيالي" data-src="https://cdn-icons-png.flaticon.com/512/3468/3468306.png"><img src="https://cdn-icons-png.flaticon.com/512/3468/3468306.png" alt="يونيكورن"></div>
+          <div class="sticker-card" data-name="بطريق penguin حيوان" data-src="https://cdn-icons-png.flaticon.com/512/826/826963.png"><img src="https://cdn-icons-png.flaticon.com/512/826/826963.png" alt="بطريق"></div>
+          <div class="sticker-card" data-name="ثعلب fox حيوان" data-src="https://cdn-icons-png.flaticon.com/512/235/235380.png"><img src="https://cdn-icons-png.flaticon.com/512/235/235380.png" alt="ثعلب"></div>
+
+          <!-- الشخصيات والأطفال -->
+          <div class="sticker-card" data-name="طفل baby صغير" data-src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png"><img src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png" alt="طفل"></div>
+          <div class="sticker-card" data-name="رائد فضاء astronaut" data-src="https://cdn-icons-png.flaticon.com/512/2021/2021637.png"><img src="https://cdn-icons-png.flaticon.com/512/2021/2021637.png" alt="رائد فضاء"></div>
+          <div class="sticker-card" data-name="روبوت robot آلي" data-src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png"><img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="روبوت"></div>
+
+          <!-- الطبيعة والفضاء -->
+          <div class="sticker-card" data-name="شمس sun صيف" data-src="https://cdn-icons-png.flaticon.com/512/869/869869.png"><img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" alt="شمس"></div>
+          <div class="sticker-card" data-name="قوس قزح rainbow طبيعة" data-src="https://cdn-icons-png.flaticon.com/512/2910/2910078.png"><img src="https://cdn-icons-png.flaticon.com/512/2910/2910078.png" alt="قوس قزح"></div>
+          <div class="sticker-card" data-name="وردة زهرة flower" data-src="https://cdn-icons-png.flaticon.com/512/346/346167.png"><img src="https://cdn-icons-png.flaticon.com/512/346/346167.png" alt="وردة"></div>
+          <div class="sticker-card" data-name="نجمة star حظ" data-src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="نجمة"></div>
+          <div class="sticker-card" data-name="قلب heart أحمر" data-src="https://cdn-icons-png.flaticon.com/512/833/833472.png"><img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="قلب"></div>
+
+          <!-- وسائل النقل والأشياء -->
+          <div class="sticker-card" data-name="صاروخ rocket فضاء" data-src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png"><img src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png" alt="صاروخ"></div>
+          <div class="sticker-card" data-name="طائرة airplane سفر" data-src="https://cdn-icons-png.flaticon.com/512/7893/7893979.png"><img src="https://cdn-icons-png.flaticon.com/512/7893/7893979.png" alt="طائرة"></div>
+          <div class="sticker-card" data-name="سيارة car سباق" data-src="https://cdn-icons-png.flaticon.com/512/744/744465.png"><img src="https://cdn-icons-png.flaticon.com/512/744/744465.png" alt="سيارة"></div>
+          <div class="sticker-card" data-name="تاج crown ملك" data-src="https://cdn-icons-png.flaticon.com/512/616/616490.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616490.png" alt="تاج"></div>
+
+          <!-- الطعام والحلوى -->
+          <div class="sticker-card" data-name="بيتزا pizza طعام" data-src="https://cdn-icons-png.flaticon.com/512/3595/3595455.png"><img src="https://cdn-icons-png.flaticon.com/512/3595/3595455.png" alt="بيتزا"></div>
+          <div class="sticker-card" data-name="آيس كريم icecream بوظة" data-src="https://cdn-icons-png.flaticon.com/512/938/938063.png"><img src="https://cdn-icons-png.flaticon.com/512/938/938063.png" alt="آيس كريم"></div>
+          <div class="sticker-card" data-name="كعكة cake ميلاد" data-src="https://cdn-icons-png.flaticon.com/512/2682/2682446.png"><img src="https://cdn-icons-png.flaticon.com/512/2682/2682446.png" alt="كعكة"></div>
+          <div class="sticker-card" data-name="دونات donut حلوى" data-src="https://cdn-icons-png.flaticon.com/512/3081/3081920.png"><img src="https://cdn-icons-png.flaticon.com/512/3081/3081920.png" alt="دونات"></div>
         </div>
       </div>
     </aside>
@@ -519,7 +522,6 @@
         </div>
 
         <div class="canvas-container" id="canvasContainer">
-          <!-- الأزرار العلوية العائمة الخاصة بالملصق مثل Sketchpad -->
           <div class="sticker-floating-menu" id="floatingMenu">
             <button class="sticker-menu-btn btn-settings" title="إعدادات">⚙️</button>
             <button class="sticker-menu-btn btn-delete" id="btnDeleteSticker" title="حذف">🗑️</button>
@@ -555,8 +557,7 @@
     let undoStack = [];
     let currentZoom = 1.0;
 
-    // كائن التحكم بالملصق والصور القابلة للتحريك
-    let activeObj = null; // { type: 'img', img: Image, x, y, w, h }
+    let activeObj = null;
     let isDraggingObj = false;
     let isResizingObj = false;
     let resizeHandle = null;
@@ -695,7 +696,6 @@
       link.click();
     };
 
-    // إضافة ملصق من المعرض بأسلوب Sketchpad
     document.querySelectorAll('.sticker-card').forEach(card => {
       card.onclick = () => {
         lockActiveObject();
