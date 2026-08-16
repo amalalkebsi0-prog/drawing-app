@@ -1,119 +1,43 @@
+function convertToColoringBook() {
+            if (!originalImageObj) {
+                alert("الرجاء رفع صورة ملونة أولاً!");
+                return;
+            }
 
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>استوديو التلوين المباشر (معالجة يدوية)</title>
-    <style>
-        :root { --primary: #4f46e5; --bg: #f3f4f6; }
-        body { background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: sans-serif; }
-        .main-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
-        .canvas-wrapper { border: 4px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: white; cursor: crosshair; }
-        .controls { display: flex; flex-direction: column; gap: 10px; width: 300px; }
-        button { padding: 10px; cursor: pointer; border-radius: 5px; border: none; background: var(--primary); color: white; font-weight: bold; }
-        .btn-reset { background: #ef4444; }
-        .btn-undo { background: #f59e0b; }
-        input[type="file"] { margin-bottom: 10px; }
-    </style>
-</head>
-<body>
-
-    <h1>استوديو التلوين المباشر</h1>
-    
-    <div class="main-container">
-        <div class="controls">
-            <input type="file" id="imageUploader" accept="image/*">
-            <button onclick="applyColoringBookFilter()">تحويل لرسمة تلوين (بدون ذكاء اصطناعي)</button>
-            <button onclick="restoreOriginal()">استعادة الصورة الأصلية</button>
-            <hr style="width:100%">
-            <label>لون الفرشاة: <input type="color" id="colorPicker" value="#ff4757"></label>
-            <label>حجم الفرشاة: <input type="range" id="brushSize" min="2" max="20" value="5"></label>
-            <button class="btn-undo" onclick="undo()">تراجع عن التلوين</button>
-            <button class="btn-reset" onclick="clearColors()">مسح الألوان فقط</button>
-        </div>
-
-        <div class="canvas-wrapper">
-            <canvas id="drawingCanvas" width="500" height="400"></canvas>
-        </div>
-    </div>
-
-    <script>
-        const canvas = document.getElementById('drawingCanvas');
-        const ctx = canvas.getContext('2d');
-        let originalImageData = null;
-        let drawing = false;
-        let undoStack = [];
-
-        // رفع الصورة
-        document.getElementById('imageUploader').addEventListener('change', function(e) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    saveState();
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        });
-
-        // تحويل الصورة لرسمة تلوين (معالجة رياضية يدوية)
-        function applyColoringBookFilter() {
-            if (!originalImageData) return;
-            saveState();
-            let src = originalImageData.data;
-            let width = canvas.width;
-            let height = canvas.height;
-            let tempCanvas = document.createElement('canvas');
-            tempCanvas.width = width;
-            tempCanvas.height = height;
-            let tCtx = tempCanvas.getContext('2d');
-            tCtx.putImageData(originalImageData, 0, 0);
+            loadingOverlay.style.display = 'flex';
             
-            let imgData = tCtx.getImageData(0, 0, width, height);
-            let data = imgData.data;
+            // نستخدم Canvas مؤقت للمعالجة
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tCtx = tempCanvas.getContext('2d');
 
+            // 1. تنظيف وتنعيم الصورة (Blur) لإزالة الضجيج غير المرغوب فيه
+            tCtx.filter = 'blur(1.5px) grayscale(100%) brightness(110%)';
+            tCtx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
+
+            // 2. تطبيق تأثير التباين العالي (High Contrast) لإظهار الخطوط الرئيسية فقط
+            tCtx.filter = 'contrast(200%)';
+            tCtx.drawImage(tempCanvas, 0, 0);
+
+            // 3. تحويل الألوان بحيث تصبح الخلفية بيضاء والخطوط سوداء واضحة
+            const imgData = tCtx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
             for (let i = 0; i < data.length; i += 4) {
-                let gray = 0.2126 * data[i] + 0.7152 * data[i+1] + 0.0722 * data[i+2];
-                data[i] = data[i+1] = data[i+2] = gray;
+                // حد العتبة (Threshold) لجعل الخطوط حادة جداً
+                let v = data[i] > 180 ? 255 : 0; 
+                data[i] = data[i + 1] = data[i + 2] = v;
             }
+            tCtx.putImageData(imgData, 0, 0);
 
-            // اكتشاف الحواف البسيط
-            for (let y = 1; y < height - 1; y++) {
-                for (let x = 1; x < width - 1; x++) {
-                    let idx = (y * width + x) * 4;
-                    let diff = Math.abs(data[idx] - data[((y+1) * width + x + 1) * 4]);
-                    let color = diff > 15 ? 0 : 255;
-                    data[idx] = data[idx+1] = data[idx+2] = color;
-                }
-            }
-            ctx.putImageData(imgData, 0, 0);
+            // عرض النتيجة
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(tempCanvas, 0, 0);
+            
+            currentModeObj = new Image();
+            currentModeObj.src = tempCanvas.toDataURL();
+            
+            saveState();
+            loadingOverlay.style.display = 'none';
         }
-
-        function restoreOriginal() {
-            if (originalImageData) ctx.putImageData(originalImageData, 0, 0);
-        }
-
-        // أدوات التلوين
-        function saveState() { undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height)); }
-        function undo() { if (undoStack.length > 1) { undoStack.pop(); ctx.putImageData(undoStack[undoStack.length-1], 0, 0); } }
-        function clearColors() { restoreOriginal(); }
-
-        canvas.onmousedown = () => { saveState(); drawing = true; };
-        canvas.onmouseup = () => { drawing = false; ctx.beginPath(); };
-        canvas.onmousemove = (e) => {
-            if (!drawing) return;
-            ctx.lineWidth = document.getElementById('brushSize').value;
-            ctx.strokeStyle = document.getElementById('colorPicker').value;
-            ctx.globalCompositeOperation = 'multiply';
-            ctx.lineCap = 'round';
-            const rect = canvas.getBoundingClientRect();
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.stroke();
-        };
-    </script>
-</body>
-</html>
