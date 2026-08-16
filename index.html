@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -85,6 +84,7 @@
     .btn-warning { background: #f59e0b; color: #111; }
     .btn-danger { background: #ef4444; }
     .btn-success { background: #10b981; }
+    .btn-magic { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
 
     .main-layout {
       display: flex;
@@ -333,7 +333,7 @@
       position: absolute;
       display: none;
       gap: 8px;
-      background: rgba(26, 29, 46, 0.9);
+      background: rgba(26, 29, 46, 0.95);
       padding: 6px 12px;
       border-radius: 30px;
       border: 1px solid var(--border-color);
@@ -363,7 +363,7 @@
 
     .sticker-menu-btn.btn-confirm { background: #10b981; }
     .sticker-menu-btn.btn-delete { background: #ef4444; }
-    .sticker-menu-btn.btn-settings { background: #7a5af8; }
+    .sticker-menu-btn.btn-remove-bg { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
 
     #referenceImage {
       max-width: 260px;
@@ -381,6 +381,7 @@
     <div class="top-actions">
       <label for="imageLoader" class="btn btn-primary">📁 رفع صورة جديدة</label>
       <input type="file" id="imageLoader" accept="image/*" style="display:none;">
+      <button id="btnRemoveBg" class="btn btn-magic">🪄 إزالة الخلفية</button>
       <button id="btnOutline" class="btn btn-purple">✨ تفريغ الألوان (أسود وأبيض)</button>
       <button id="btnUndo" class="btn btn-warning">↩️ تراجع</button>
       <button id="btnClear" class="btn btn-danger">🗑️ مسح الكل</button>
@@ -468,24 +469,29 @@
         </label>
       </div>
 
-      <!-- مكتبة ملصقات غنية ومرسومة بدقة المماثلة لـ Sketchpad -->
+      <!-- مكتبة الملصقات الشاملة مع خيارات البحث المحسنة -->
       <div class="tool-section">
-        <h3>🐼 مكتبة الملصقات الفنية (Clipart)</h3>
-        <input type="text" id="stickerSearch" class="sticker-search-input" placeholder="🔍 ابحث عن ملصق (باندا, قطة, طائرة, بيتزا...)...">
+        <h3>🐼 مكتبة الملصقات الشاملة (Clipart)</h3>
+        <input type="text" id="stickerSearch" class="sticker-search-input" placeholder="🔍 ابحث (باندا, شمس, قطة, طائرة, بيتزا...)...">
 
         <div class="sticker-grid" id="stickerGrid">
           <!-- الحيوانات -->
           <div class="sticker-card" data-name="باندا panda دب حيوان" data-src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png"><img src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png" alt="باندا"></div>
           <div class="sticker-card" data-name="قطة cat قطه حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616430.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616430.png" alt="قطة"></div>
           <div class="sticker-card" data-name="كلب dog حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616408.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="كلب"></div>
+          <div class="sticker-card" data-name="ارنب rabbit حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616440.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616440.png" alt="أرنب"></div>
+          <div class="sticker-card" data-name="أسد lion حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616412.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616412.png" alt="أسد"></div>
           <div class="sticker-card" data-name="وحيد القرن unicorn خيالي" data-src="https://cdn-icons-png.flaticon.com/512/3468/3468306.png"><img src="https://cdn-icons-png.flaticon.com/512/3468/3468306.png" alt="يونيكورن"></div>
           <div class="sticker-card" data-name="بطريق penguin حيوان" data-src="https://cdn-icons-png.flaticon.com/512/826/826963.png"><img src="https://cdn-icons-png.flaticon.com/512/826/826963.png" alt="بطريق"></div>
           <div class="sticker-card" data-name="ثعلب fox حيوان" data-src="https://cdn-icons-png.flaticon.com/512/235/235380.png"><img src="https://cdn-icons-png.flaticon.com/512/235/235380.png" alt="ثعلب"></div>
+          <div class="sticker-card" data-name="زرافة giraffe حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616554.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616554.png" alt="زرافة"></div>
+          <div class="sticker-card" data-name="فراشة butterfly حشرة" data-src="https://cdn-icons-png.flaticon.com/512/3069/3069224.png"><img src="https://cdn-icons-png.flaticon.com/512/3069/3069224.png" alt="فراشة"></div>
 
           <!-- الشخصيات والأطفال -->
           <div class="sticker-card" data-name="طفل baby صغير" data-src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png"><img src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png" alt="طفل"></div>
           <div class="sticker-card" data-name="رائد فضاء astronaut" data-src="https://cdn-icons-png.flaticon.com/512/2021/2021637.png"><img src="https://cdn-icons-png.flaticon.com/512/2021/2021637.png" alt="رائد فضاء"></div>
           <div class="sticker-card" data-name="روبوت robot آلي" data-src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png"><img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="روبوت"></div>
+          <div class="sticker-card" data-name="نينجا ninja بطل" data-src="https://cdn-icons-png.flaticon.com/512/1083/1083522.png"><img src="https://cdn-icons-png.flaticon.com/512/1083/1083522.png" alt="نينجا"></div>
 
           <!-- الطبيعة والفضاء -->
           <div class="sticker-card" data-name="شمس sun صيف" data-src="https://cdn-icons-png.flaticon.com/512/869/869869.png"><img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" alt="شمس"></div>
@@ -493,18 +499,23 @@
           <div class="sticker-card" data-name="وردة زهرة flower" data-src="https://cdn-icons-png.flaticon.com/512/346/346167.png"><img src="https://cdn-icons-png.flaticon.com/512/346/346167.png" alt="وردة"></div>
           <div class="sticker-card" data-name="نجمة star حظ" data-src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="نجمة"></div>
           <div class="sticker-card" data-name="قلب heart أحمر" data-src="https://cdn-icons-png.flaticon.com/512/833/833472.png"><img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="قلب"></div>
+          <div class="sticker-card" data-name="قمر moon فضاء" data-src="https://cdn-icons-png.flaticon.com/512/740/740878.png"><img src="https://cdn-icons-png.flaticon.com/512/740/740878.png" alt="قمر"></div>
+          <div class="sticker-card" data-name="شجرة tree نبات" data-src="https://cdn-icons-png.flaticon.com/512/489/489969.png"><img src="https://cdn-icons-png.flaticon.com/512/489/489969.png" alt="شجرة"></div>
 
           <!-- وسائل النقل والأشياء -->
           <div class="sticker-card" data-name="صاروخ rocket فضاء" data-src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png"><img src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png" alt="صاروخ"></div>
           <div class="sticker-card" data-name="طائرة airplane سفر" data-src="https://cdn-icons-png.flaticon.com/512/7893/7893979.png"><img src="https://cdn-icons-png.flaticon.com/512/7893/7893979.png" alt="طائرة"></div>
           <div class="sticker-card" data-name="سيارة car سباق" data-src="https://cdn-icons-png.flaticon.com/512/744/744465.png"><img src="https://cdn-icons-png.flaticon.com/512/744/744465.png" alt="سيارة"></div>
           <div class="sticker-card" data-name="تاج crown ملك" data-src="https://cdn-icons-png.flaticon.com/512/616/616490.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616490.png" alt="تاج"></div>
+          <div class="sticker-card" data-name="هدية gift مفاجأة" data-src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png"><img src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png" alt="هدية"></div>
 
           <!-- الطعام والحلوى -->
           <div class="sticker-card" data-name="بيتزا pizza طعام" data-src="https://cdn-icons-png.flaticon.com/512/3595/3595455.png"><img src="https://cdn-icons-png.flaticon.com/512/3595/3595455.png" alt="بيتزا"></div>
           <div class="sticker-card" data-name="آيس كريم icecream بوظة" data-src="https://cdn-icons-png.flaticon.com/512/938/938063.png"><img src="https://cdn-icons-png.flaticon.com/512/938/938063.png" alt="آيس كريم"></div>
           <div class="sticker-card" data-name="كعكة cake ميلاد" data-src="https://cdn-icons-png.flaticon.com/512/2682/2682446.png"><img src="https://cdn-icons-png.flaticon.com/512/2682/2682446.png" alt="كعكة"></div>
           <div class="sticker-card" data-name="دونات donut حلوى" data-src="https://cdn-icons-png.flaticon.com/512/3081/3081920.png"><img src="https://cdn-icons-png.flaticon.com/512/3081/3081920.png" alt="دونات"></div>
+          <div class="sticker-card" data-name="فراولة strawberry فاكهة" data-src="https://cdn-icons-png.flaticon.com/512/590/590685.png"><img src="https://cdn-icons-png.flaticon.com/512/590/590685.png" alt="فراولة"></div>
+          <div class="sticker-card" data-name="تفاحة apple فاكهة" data-src="https://cdn-icons-png.flaticon.com/512/415/415733.png"><img src="https://cdn-icons-png.flaticon.com/512/415/415733.png" alt="تفاحة"></div>
         </div>
       </div>
     </aside>
@@ -523,7 +534,7 @@
 
         <div class="canvas-container" id="canvasContainer">
           <div class="sticker-floating-menu" id="floatingMenu">
-            <button class="sticker-menu-btn btn-settings" title="إعدادات">⚙️</button>
+            <button class="sticker-menu-btn btn-remove-bg" id="btnMenuRemoveBg" title="إزالة الخلفية السريعة">🪄</button>
             <button class="sticker-menu-btn btn-delete" id="btnDeleteSticker" title="حذف">🗑️</button>
             <button class="sticker-menu-btn btn-confirm" id="btnConfirmSticker" title="تأكيد وتثبيت">✔️</button>
           </div>
@@ -620,6 +631,42 @@
       floatingMenu.style.display = 'none';
       redrawCanvas();
     };
+
+    // خوارزمية إزالة الخلفية التلقائية للصورة/الملصق المختار
+    function removeBackgroundFromActiveObj() {
+      if (!activeObj || !activeObj.img) return;
+
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCanvas.width = activeObj.img.naturalWidth || activeObj.img.width;
+      tempCanvas.height = activeObj.img.naturalHeight || activeObj.img.height;
+
+      tempCtx.drawImage(activeObj.img, 0, 0, tempCanvas.width, tempCanvas.height);
+      const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+      const data = imgData.data;
+
+      // تحليل وتحويل الخلفية البيضاء أو الفاتحة الشديدة إلى شفافة (Alpha = 0)
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        if (r > 220 && g > 220 && b > 220) {
+          data[i + 3] = 0; // تحويل للشفافية
+        }
+      }
+
+      tempCtx.putImageData(imgData, 0, 0);
+
+      const transparentImg = new Image();
+      transparentImg.onload = () => {
+        activeObj.img = transparentImg;
+        redrawCanvas();
+      };
+      transparentImg.src = tempCanvas.toDataURL();
+    }
+
+    document.getElementById('btnRemoveBg').onclick = removeBackgroundFromActiveObj;
+    document.getElementById('btnMenuRemoveBg').onclick = removeBackgroundFromActiveObj;
 
     function redrawCanvas() {
       if (undoStack.length > 0) {
