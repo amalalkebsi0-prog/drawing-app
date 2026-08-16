@@ -2,115 +2,85 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>استوديو الرسم والتلوين الاحترافي</title>
+    <title>استوديو الرسم والتلوين</title>
     <style>
-        body { background: #333; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; color: white; }
-        .toolbar { background: #444; padding: 15px; border-radius: 8px; display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .canvas-area { display: flex; gap: 30px; }
-        canvas { border: 5px solid #fff; background: white; cursor: crosshair; }
-        .color-btn { width: 30px; height: 30px; border: 2px solid #fff; cursor: pointer; }
+        body { background: #e0e0e0; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        .toolbar { background: #fff; padding: 10px; border-radius: 8px; margin: 10px; display: flex; gap: 10px; align-items: center; border: 1px solid #ccc; }
+        .canvases { display: flex; gap: 20px; }
+        canvas { border: 2px solid #333; background: #fff; cursor: crosshair; }
+        .color-btn { width: 25px; height: 25px; border: 1px solid #000; cursor: pointer; display: inline-block; }
     </style>
 </head>
 <body>
 
-<div class="toolbar">
-    <input type="file" id="upload" accept="image/*">
-    <select id="tool">
-        <option value="pencil">قلم</option>
-        <option value="brush">فرشاة</option>
-        <option value="fill">دلو التعبئة</option>
-        <option value="eraser">ممحاة</option>
-    </select>
-    <input type="range" id="size" min="1" max="50" value="5">
-    <div id="palette" style="display:flex; gap:5px;"></div>
-    <button onclick="clearAll()">مسح اللوحة</button>
-</div>
+    <div class="toolbar">
+        <input type="file" id="upload" accept="image/*">
+        <label>الحجم: <input type="range" id="brushSize" min="1" max="20" value="5"></label>
+        <div id="palette"></div>
+        <button onclick="currentTool='brush'">فرشاة</button>
+        <button onclick="currentTool='eraser'">ممحاة</button>
+        <button onclick="clearAll()">مسح</button>
+    </div>
 
-<div class="canvas-area">
-    <div><p>الصورة الأصلية:</p><canvas id="ref" width="300" height="225"></canvas></div>
-    <div><p>لوحة الرسم (مساحة أكبر):</p><canvas id="main" width="800" height="600"></canvas></div>
-</div>
+    <div class="canvases">
+        <div><p>المرجع:</p><canvas id="ref" width="400" height="300"></canvas></div>
+        <div><p>التلوين:</p><canvas id="main" width="400" height="300"></canvas></div>
+    </div>
 
 <script>
     const refCtx = document.getElementById('ref').getContext('2d');
+    const mainCtx = document.getElementById('main').getContext('2d');
     const mainCanvas = document.getElementById('main');
-    const ctx = mainCanvas.getContext('2d');
-    let color = '#000000', drawing = false;
+    let currentTool = 'brush';
+    let drawing = false;
 
     // تهيئة الألوان
-    ['#000', '#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff', '#ffa500'].forEach(c => {
+    const colors = ['#000', '#f00', '#0f0', '#00f', '#ff0', '#f0f', '#ffa500'];
+    colors.forEach(c => {
         let b = document.createElement('div');
-        b.className = 'color-btn'; b.style.background = c;
-        b.onclick = () => color = c;
+        b.className = 'color-btn';
+        b.style.background = c;
+        b.onclick = () => { color = c; currentTool = 'brush'; };
         document.getElementById('palette').appendChild(b);
     });
+    let color = '#000';
 
-    document.getElementById('upload').onchange = (e) => {
+    // رفع ومعالجة الصورة
+    document.getElementById('upload').onchange = function(e) {
         const reader = new FileReader();
-        reader.onload = (ev) => {
+        reader.onload = function(event) {
             const img = new Image();
-            img.onload = () => {
-                refCtx.drawImage(img, 0, 0, 300, 225);
-                ctx.drawImage(img, 0, 0, 800, 600);
+            img.onload = function() {
+                // رسم المرجع
+                refCtx.drawImage(img, 0, 0, 400, 300);
+                // رسم التلوين (سكتش بسيط بدون فلتر معقد لتجنب الأخطاء)
+                mainCtx.drawImage(img, 0, 0, 400, 300);
+                mainCtx.globalCompositeOperation = 'source-atop';
+                mainCtx.fillStyle = 'rgba(255,255,255,0.8)'; // تفتيح الصورة لتصبح كالسكتش
+                mainCtx.fillRect(0,0,400,300);
+                mainCtx.globalCompositeOperation = 'source-over';
             };
-            img.src = ev.target.result;
+            img.src = event.target.result;
         };
         reader.readAsDataURL(e.target.files[0]);
     };
 
-    // منطق الرسم
-    mainCanvas.onmousedown = (e) => {
+    // الرسم
+    mainCanvas.onmousedown = () => drawing = true;
+    mainCanvas.onmouseup = () => { drawing = false; mainCtx.beginPath(); };
+    mainCanvas.onmousemove = function(e) {
+        if (!drawing) return;
         const rect = mainCanvas.getBoundingClientRect();
-        const x = e.clientX - rect.left, y = e.clientY - rect.top;
-        if(document.getElementById('tool').value === 'fill') {
-            floodFill(x, y, hexToRgb(color));
-        } else {
-            drawing = true;
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-        }
+        mainCtx.lineWidth = document.getElementById('brushSize').value;
+        mainCtx.strokeStyle = (currentTool === 'eraser') ? '#fff' : color;
+        mainCtx.lineCap = 'round';
+        mainCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        mainCtx.stroke();
+        mainCtx.beginPath();
+        mainCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
     };
 
-    mainCanvas.onmousemove = (e) => {
-        if(!drawing) return;
-        const rect = mainCanvas.getBoundingClientRect();
-        const tool = document.getElementById('tool').value;
-        ctx.lineWidth = document.getElementById('size').value;
-        ctx.strokeStyle = (tool === 'eraser') ? '#fff' : color;
-        ctx.lineCap = (tool === 'brush') ? 'round' : 'square';
-        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-        ctx.stroke();
-    };
-
-    mainCanvas.onmouseup = () => drawing = false;
-
-    // وظيفة الدلو (تعبئة المساحات)
-    function floodFill(startX, startY, fillColor) {
-        const imageData = ctx.getImageData(0, 0, 800, 600);
-        const data = imageData.data;
-        const startPos = (startY * 800 + startX) * 4;
-        const startR = data[startPos], startG = data[startPos+1], startB = data[startPos+2];
-        
-        if(startR === fillColor.r && startG === fillColor.g && startB === fillColor.b) return;
-        
-        let pixelStack = [[startX, startY]];
-        while(pixelStack.length) {
-            let [x, y] = pixelStack.pop();
-            let pos = (y * 800 + x) * 4;
-            if(x>=0 && x<800 && y>=0 && y<600 && data[pos] === startR && data[pos+1] === startG && data[pos+2] === startB) {
-                data[pos] = fillColor.r; data[pos+1] = fillColor.g; data[pos+2] = fillColor.b; data[pos+3] = 255;
-                pixelStack.push([x+1, y], [x-1, y], [x, y+1], [x, y-1]);
-            }
-        }
-        ctx.putImageData(imageData, 0, 0);
-    }
-
-    function hexToRgb(hex) {
-        let r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16);
-        return {r, g, b};
-    }
-
-    function clearAll() { ctx.clearRect(0,0,800,600); }
+    function clearAll() { mainCtx.clearRect(0,0,400,300); }
 </script>
 </body>
 </html>
