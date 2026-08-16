@@ -527,7 +527,6 @@
     let undoStack = [];
     let currentZoom = 1.0;
 
-    // متطلبات التحريك والتعديل على الصورة المرفوعة
     let uploadedImgObj = null;
     let imgTransform = { x: 50, y: 50, w: 300, h: 300 };
     let isDraggingImg = false;
@@ -681,18 +680,24 @@
       reader.readAsDataURL(file);
     };
 
+    // تفريغ الألوان وتوفير التكبير والتصغير والتحريك
     document.getElementById('btnOutline').onclick = () => {
       if (!originalImage) {
         alert('يرجى رفع صورة أولاً!');
         return;
       }
 
-      const width = canvas.width;
-      const height = canvas.height;
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCanvas.width = originalImage.naturalWidth || originalImage.width;
+      tempCanvas.height = originalImage.naturalHeight || originalImage.height;
 
-      ctx.drawImage(originalImage, 0, 0, width, height);
-      const imgData = ctx.getImageData(0, 0, width, height);
+      tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
+      const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
       const data = imgData.data;
+
+      const width = tempCanvas.width;
+      const height = tempCanvas.height;
 
       const gray = new Float32Array(width * height);
       for (let i = 0; i < data.length; i += 4) {
@@ -719,7 +724,7 @@
         }
       }
 
-      const output = ctx.createImageData(width, height);
+      const output = tempCtx.createImageData(width, height);
       const outData = output.data;
 
       for (let i = 0; i < gray.length; i++) {
@@ -733,10 +738,27 @@
         outData[idx + 3] = 255;
       }
 
-      uploadedImgObj = null;
-      document.getElementById('btnLockImage').style.display = 'none';
-      ctx.putImageData(output, 0, 0);
-      saveState();
+      tempCtx.putImageData(output, 0, 0);
+
+      const outlinedImg = new Image();
+      outlinedImg.onload = () => {
+        uploadedImgObj = outlinedImg;
+
+        let aspect = tempCanvas.width / tempCanvas.height;
+        let defaultW = Math.min(canvas.width * 0.75, tempCanvas.width);
+        let defaultH = defaultW / aspect;
+
+        imgTransform = {
+          x: (canvas.width - defaultW) / 2,
+          y: (canvas.height - defaultH) / 2,
+          w: defaultW,
+          h: defaultH
+        };
+
+        document.getElementById('btnLockImage').style.display = 'inline-flex';
+        redrawCanvas();
+      };
+      outlinedImg.src = tempCanvas.toDataURL();
     };
 
     document.querySelectorAll('.tool-btn').forEach(btn => {
