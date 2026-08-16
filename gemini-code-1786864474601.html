@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>توليد وتلوين الصور - الأبيض والأسود</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+            padding: 20px;
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .controls-panel {
+            width: 100%;
+            max-width: 300px;
+            gap: 15px;
+        }
+
+        .canvas-panel {
+            flex-grow: 1;
+            max-width: 600px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #374151;
+            font-weight: 600;
+            align-self: flex-start;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .template-btn {
+            background: #f9fafb;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .template-btn:hover {
+            border-color: var(--primary-color);
+            background: #eef2ff;
+        }
+
+        .tools-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .tool-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .tool-row label {
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+
+        input[type="color"] {
+            border: none;
+            width: 40px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            background: none;
+        }
+
+        input[type="range"] {
+            width: 60%;
+            cursor: pointer;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.2s;
+            margin-top: 5px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            cursor: crosshair;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 400px;
+        }
+
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+
+        .actions-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>استوديو تلوين ورسم الصور</h1>
+        <p>اختر رسماً بالأبيض والأسود، ثم استخدم أدوات التلوين لإبداع صورتك الخاصة</p>
+    </header>
+
+    <div class="main-container">
+        <!-- لوحة التحكم والخيارات -->
+        <div class="card controls-panel">
+            <div class="section-title">1. اختر رسماً جاهزاً</div>
+            <div class="templates-grid">
+                <button class="template-btn" onclick="loadTemplate('cat')">🐱 قطة ظريفة</button>
+                <button class="template-btn" onclick="loadTemplate('car')">🚗 سيارة رياضية</button>
+                <button class="template-btn" onclick="loadTemplate('flower')">🌸 زهرة جميلة</button>
+                <button class="template-btn" onclick="loadTemplate('house')">🏠 منزل ريفي</button>
+            </div>
+
+            <div class="tools-group">
+                <div class="section-title" style="margin-bottom: 5px;">2. أدوات التلوين</div>
+                
+                <div class="tool-row">
+                    <label>لون الفرشاة:</label>
+                    <input type="color" id="colorPicker" value="#ff4757">
+                </div>
+
+                <div class="tool-row">
+                    <label>حجم الفرشاة:</label>
+                    <input type="range" id="brushSize" min="2" max="40" value="10">
+                </div>
+
+                <div class="tool-row" style="margin-top: 5px;">
+                    <button class="btn btn-secondary" onclick="setEraser()" style="margin: 0; width: 48%;">ممحاة</button>
+                    <button class="btn" onclick="setBrush()" style="margin: 0; width: 48%;">فرشاة</button>
+                </div>
+            </div>
+
+            <div class="tools-group">
+                <button class="btn btn-secondary" onclick="clearCanvas()">إعادة تعيين اللوحة</button>
+            </div>
+        </div>
+
+        <!-- لوحة الرسم العرضية -->
+        <div class="card canvas-panel">
+            <div class="section-title">لوحة الرسم والتلوين</div>
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="drawingCanvas" width="500" height="380"></canvas>
+            </div>
+            
+            <div class="actions-row">
+                <button class="btn" onclick="saveImage()">حفظ الصورة الملونة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const brushSize = document.getElementById('brushSize');
+
+        let isDrawing = false;
+        let currentTemplateImage = new Image();
+        let isEraser = false;
+
+        // إعداد خلفية بيضاء افتراضية للوحة
+        window.onload = () => {
+            resetCanvasBackground();
+            loadTemplate('cat'); // تحميل قالب افتراضي عند البدء
+        };
+
+        function resetCanvasBackground() {
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // رسم قوالب بالأبيض والأسود برمجياً كأمثلة (خطوط سوداء واضحة)
+        function loadTemplate(type) {
+            resetCanvasBackground();
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 4;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            if (type === 'cat') {
+                // رسم وجه قطة بسيط
+                ctx.beginPath();
+                // الرأس
+                ctx.arc(250, 200, 100, 0, Math.PI * 2);
+                // الأذنان
+                ctx.moveTo(170, 130); ctx.lineTo(130, 60); ctx.lineTo(200, 115);
+                ctx.moveTo(330, 130); ctx.lineTo(370, 60); ctx.lineTo(300, 115);
+                // العينان
+                ctx.arc(210, 170, 10, 0, Math.PI * 2);
+                ctx.arc(290, 170, 10, 0, Math.PI * 2);
+                // الأنف والفم
+                ctx.moveTo(250, 195); ctx.lineTo(240, 210); ctx.lineTo(260, 210); ctx.closePath();
+                ctx.moveTo(250, 210); ctx.lineTo(250, 225);
+                ctx.stroke();
+            } else if (type === 'car') {
+                // رسم سيارة مبسطة
+                ctx.strokeRect(150, 180, 200, 80);
+                ctx.beginPath();
+                ctx.moveTo(190, 180); ctx.lineTo(220, 120); ctx.lineTo(280, 120); ctx.lineTo(310, 180);
+                // العجلات
+                ctx.arc(200, 260, 30, 0, Math.PI * 2);
+                ctx.arc(300, 260, 30, 0, Math.PI * 2);
+                ctx.stroke();
+            } else if (type === 'flower') {
+                // رسم زهرة
+                ctx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    let angle = (i * Math.PI) / 3;
+                    let x = 250 + Math.cos(angle) * 50;
+                    let y = 190 + Math.sin(angle) * 50;
+                    ctx.moveTo(250, 190);
+                    ctx.arc(x, y, 40, 0, Math.PI * 2);
+                }
+                // مركز الزهرة
+                ctx.arc(250, 190, 30, 0, Math.PI * 2);
+                // الساق
+                ctx.moveTo(250, 220); ctx.lineTo(250, 350);
+                ctx.stroke();
+            } else if (type === 'house') {
+                // رسم منزل
+                ctx.strokeRect(170, 180, 160, 150);
+                ctx.beginPath();
+                // السقف
+                ctx.moveTo(150, 180); ctx.lineTo(250, 90); ctx.lineTo(350, 180);
+                // الباب والنافذة
+                ctx.rect(230, 250, 40, 80);
+                ctx.rect(190, 200, 40, 40);
+                ctx.stroke();
+            }
+        }
+
+        // أحداث الماوس واللمس للرسم
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.clientX || e.touches[0].clientX) - rect.left,
+                y: (e.clientY || e.touches[0].clientY) - rect.top
+            };
+        }
+
+        function startPosition(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function endPosition() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+
+            const pos = getMousePos(e);
+
+            ctx.lineWidth = brushSize.value;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if (isEraser) {
+                ctx.strokeStyle = '#ffffff';
+            } else {
+                ctx.strokeStyle = colorPicker.value;
+            }
+
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        // ربط الأحداث باللوحة
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', draw);
+
+        canvas.addEventListener('touchstart', startPosition);
+        canvas.addEventListener('touchend', endPosition);
+        canvas.addEventListener('touchmove', draw);
+
+        function setEraser() {
+            isEraser = true;
+        }
+
+        function setBrush() {
+            isEraser = false;
+        }
+
+        function clearCanvas() {
+            if (confirm("هل أنت متأكد من رغبتك في مسح اللوحة وإعادة تعيينها؟")) {
+                resetCanvasBackground();
+            }
+        }
+
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = 'colored-artwork.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>
