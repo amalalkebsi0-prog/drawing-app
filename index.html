@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -201,6 +200,21 @@
       color: white;
       border-color: var(--accent-color);
       font-weight: 600;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      cursor: pointer;
+    }
+
+    .checkbox-container input {
+      cursor: pointer;
+      accent-color: var(--accent-color);
     }
 
     .sticker-search-input {
@@ -409,6 +423,7 @@
         </div>
       </div>
 
+      <!-- الأشكال الهندسية مع خيار التعبئة -->
       <div class="tool-section">
         <h3>📐 الأشكال الهندسية</h3>
         <div class="grid-buttons">
@@ -417,6 +432,10 @@
           <button class="tool-btn" data-tool="triangle">🔺 مثلث</button>
           <button class="tool-btn" data-tool="star">⭐ نجمة</button>
         </div>
+        <label class="checkbox-container">
+          <input type="checkbox" id="fillShapesCheck">
+          تعبئة الشكل باللون
+        </label>
       </div>
 
       <div class="tool-section">
@@ -425,11 +444,11 @@
 
         <div class="sticker-size-control">
           <div class="sticker-preview-box">
-            <span>حجم الملصق/الشكل:</span>
+            <span>حجم الملصق:</span>
             <span id="stickerPreview" style="font-size: 1.5rem;">⭐</span>
-            <span id="stickerSizeText">40px</span>
+            <span id="stickerSizeText">60px</span>
           </div>
-          <input type="range" id="stickerSizeSlider" min="10" max="200" value="40">
+          <input type="range" id="stickerSizeSlider" min="20" max="250" value="60">
         </div>
 
         <div class="emoji-picker" id="emojiContainer">
@@ -499,7 +518,8 @@
     let lineWidth = 5;
 
     let selectedEmoji = '⭐';
-    let stickerSize = 40;
+    let stickerSize = 60;
+    let isFillShape = false;
 
     let originalImage = null;
     let undoStack = [];
@@ -658,6 +678,10 @@
       document.getElementById('widthValue').innerText = `${lineWidth} px`;
     };
 
+    document.getElementById('fillShapesCheck').onchange = (e) => {
+      isFillShape = e.target.checked;
+    };
+
     document.getElementById('stickerSearch').oninput = (e) => {
       const query = e.target.value.toLowerCase().trim();
       document.querySelectorAll('.emoji-btn').forEach(btn => {
@@ -671,8 +695,9 @@
     };
 
     document.getElementById('stickerSizeSlider').oninput = (e) => {
-      stickerSize = e.target.value;
+      stickerSize = parseInt(e.target.value);
       document.getElementById('stickerSizeText').innerText = `${stickerSize}px`;
+      document.getElementById('stickerPreview').style.fontSize = `${Math.min(stickerSize, 40)}px`;
     };
 
     document.querySelectorAll('.emoji-btn').forEach(btn => {
@@ -714,6 +739,9 @@
       }
       ctx.lineTo(cx, cy - outerRadius);
       ctx.closePath();
+      if (isFillShape) {
+        ctx.fill();
+      }
       ctx.stroke();
     }
 
@@ -729,7 +757,7 @@
         saveState();
         isDrawing = false;
       } else if (currentTool === 'emoji') {
-        ctx.font = `${stickerSize}px Arial`;
+        ctx.font = `${stickerSize}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(selectedEmoji, startX, startY);
@@ -763,10 +791,16 @@
           ctx.fillRect(pos.x + (Math.random() - 0.5) * lineWidth * 2, pos.y + (Math.random() - 0.5) * lineWidth * 2, 1, 1);
         }
       } else if (currentTool === 'rectangle') {
+        if (isFillShape) {
+          ctx.fillRect(startX, startY, pos.x - startX, pos.y - startY);
+        }
         ctx.strokeRect(startX, startY, pos.x - startX, pos.y - startY);
       } else if (currentTool === 'circle') {
         ctx.beginPath();
         ctx.arc(startX, startY, Math.hypot(pos.x - startX, pos.y - startY), 0, Math.PI * 2);
+        if (isFillShape) {
+          ctx.fill();
+        }
         ctx.stroke();
       } else if (currentTool === 'triangle') {
         ctx.beginPath();
@@ -774,6 +808,9 @@
         ctx.lineTo(startX + (pos.x - startX) / 2, startY);
         ctx.lineTo(pos.x, pos.y);
         ctx.closePath();
+        if (isFillShape) {
+          ctx.fill();
+        }
         ctx.stroke();
       } else if (currentTool === 'star') {
         const radius = Math.hypot(pos.x - startX, pos.y - startY);
