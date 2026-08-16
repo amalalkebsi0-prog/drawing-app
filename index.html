@@ -474,47 +474,18 @@
         <input type="text" id="stickerSearch" class="sticker-search-input" placeholder="🔍 ابحث (باندا, شمس, قطة, طائرة, بيتزا...)...">
 
         <div class="sticker-grid" id="stickerGrid">
-          <!-- الحيوانات -->
-          <div class="sticker-card" data-name="باندا panda دب حيوان" data-src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png"><img src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png" alt="باندا"></div>
-          <div class="sticker-card" data-name="قطة cat قطه حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616430.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616430.png" alt="قطة"></div>
-          <div class="sticker-card" data-name="كلب dog حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616408.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="كلب"></div>
-          <div class="sticker-card" data-name="ارنب rabbit حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616440.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616440.png" alt="أرنب"></div>
-          <div class="sticker-card" data-name="أسد lion حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616412.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616412.png" alt="أسد"></div>
-          <div class="sticker-card" data-name="وحيد القرن unicorn خيالي" data-src="https://cdn-icons-png.flaticon.com/512/3468/3468306.png"><img src="https://cdn-icons-png.flaticon.com/512/3468/3468306.png" alt="يونيكورن"></div>
-          <div class="sticker-card" data-name="بطريق penguin حيوان" data-src="https://cdn-icons-png.flaticon.com/512/826/826963.png"><img src="https://cdn-icons-png.flaticon.com/512/826/826963.png" alt="بطريق"></div>
-          <div class="sticker-card" data-name="ثعلب fox حيوان" data-src="https://cdn-icons-png.flaticon.com/512/235/235380.png"><img src="https://cdn-icons-png.flaticon.com/512/235/235380.png" alt="ثعلب"></div>
-          <div class="sticker-card" data-name="زرافة giraffe حيوان" data-src="https://cdn-icons-png.flaticon.com/512/616/616554.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616554.png" alt="زرافة"></div>
-          <div class="sticker-card" data-name="فراشة butterfly حشرة" data-src="https://cdn-icons-png.flaticon.com/512/3069/3069224.png"><img src="https://cdn-icons-png.flaticon.com/512/3069/3069224.png" alt="فراشة"></div>
+          <!-- SVG Data-URIs مضمنة حاسوبياً لضمان قراءة الألوان وإزالة الخلفية بدقة -->
+          <div class="sticker-card" data-name="باندا panda دب حيوان" data-svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="25" cy="25" r="15" fill="#000"/><circle cx="75" cy="25" r="15" fill="#000"/><circle cx="50" cy="55" r="35" fill="#fff" stroke="#000" stroke-width="4"/><ellipse cx="38" cy="50" rx="8" ry="12" fill="#000"/><ellipse cx="62" cy="50" rx="8" ry="12" fill="#000"/><circle cx="38" cy="48" r="3" fill="#fff"/><circle cx="62" cy="48" r="3" fill="#fff"/><ellipse cx="50" cy="65" rx="6" ry="4" fill="#000"/></svg>'><img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="25" cy="25" r="15" fill="%23000"/><circle cx="75" cy="25" r="15" fill="%23000"/><circle cx="50" cy="55" r="35" fill="%23fff" stroke="%23000" stroke-width="4"/><ellipse cx="38" cy="50" rx="8" ry="12" fill="%23000"/><ellipse cx="62" cy="50" rx="8" ry="12" fill="%23000"/><circle cx="38" cy="48" r="3" fill="%23fff"/><circle cx="62" cy="48" r="3" fill="%23fff"/><ellipse cx="50" cy="65" rx="6" ry="4" fill="%23000"/></svg>' alt="باندا"></div>
 
-          <!-- الشخصيات والأطفال -->
-          <div class="sticker-card" data-name="طفل baby صغير" data-src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png"><img src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png" alt="طفل"></div>
-          <div class="sticker-card" data-name="رائد فضاء astronaut" data-src="https://cdn-icons-png.flaticon.com/512/2021/2021637.png"><img src="https://cdn-icons-png.flaticon.com/512/2021/2021637.png" alt="رائد فضاء"></div>
-          <div class="sticker-card" data-name="روبوت robot آلي" data-src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png"><img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="روبوت"></div>
-          <div class="sticker-card" data-name="نينجا ninja بطل" data-src="https://cdn-icons-png.flaticon.com/512/1083/1083522.png"><img src="https://cdn-icons-png.flaticon.com/512/1083/1083522.png" alt="نينجا"></div>
+          <div class="sticker-card" data-name="قطة cat قطه حيوان" data-svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="20,10 35,40 10,40" fill="#f97316"/><polygon points="80,10 65,40 90,40" fill="#f97316"/><circle cx="50" cy="55" r="35" fill="#fb923c"/><circle cx="38" cy="50" r="5" fill="#000"/><circle cx="62" cy="50" r="5" fill="#000"/><polygon points="50,60 45,66 55,66" fill="#ef4444"/></svg>'><img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="20,10 35,40 10,40" fill="%23f97316"/><polygon points="80,10 65,40 90,40" fill="%23f97316"/><circle cx="50" cy="55" r="35" fill="%23fb923c"/><circle cx="38" cy="50" r="5" fill="%23000"/><circle cx="62" cy="50" r="5" fill="%23000"/><polygon points="50,60 45,66 55,66" fill="%23ef4444"/></svg>' alt="قطة"></div>
 
-          <!-- الطبيعة والفضاء -->
-          <div class="sticker-card" data-name="شمس sun صيف" data-src="https://cdn-icons-png.flaticon.com/512/869/869869.png"><img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" alt="شمس"></div>
-          <div class="sticker-card" data-name="قوس قزح rainbow طبيعة" data-src="https://cdn-icons-png.flaticon.com/512/2910/2910078.png"><img src="https://cdn-icons-png.flaticon.com/512/2910/2910078.png" alt="قوس قزح"></div>
-          <div class="sticker-card" data-name="وردة زهرة flower" data-src="https://cdn-icons-png.flaticon.com/512/346/346167.png"><img src="https://cdn-icons-png.flaticon.com/512/346/346167.png" alt="وردة"></div>
-          <div class="sticker-card" data-name="نجمة star حظ" data-src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="نجمة"></div>
-          <div class="sticker-card" data-name="قلب heart أحمر" data-src="https://cdn-icons-png.flaticon.com/512/833/833472.png"><img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="قلب"></div>
-          <div class="sticker-card" data-name="قمر moon فضاء" data-src="https://cdn-icons-png.flaticon.com/512/740/740878.png"><img src="https://cdn-icons-png.flaticon.com/512/740/740878.png" alt="قمر"></div>
-          <div class="sticker-card" data-name="شجرة tree نبات" data-src="https://cdn-icons-png.flaticon.com/512/489/489969.png"><img src="https://cdn-icons-png.flaticon.com/512/489/489969.png" alt="شجرة"></div>
+          <div class="sticker-card" data-name="شمس sun صيف" data-svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="25" fill="#f59e0b"/><path d="M50,5 L50,18 M50,82 L50,95 M5,50 L18,50 M82,50 L95,50 M18,18 L28,28 M72,72 L82,82 M82,18 L72,28 M28,72 L18,82" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"/></svg>'><img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="25" fill="%23f59e0b"/><path d="M50,5 L50,18 M50,82 L50,95 M5,50 L18,50 M82,50 L95,50 M18,18 L28,28 M72,72 L82,82 M82,18 L72,28 M28,72 L18,82" stroke="%23f59e0b" stroke-width="6" stroke-linecap="round"/></svg>' alt="شمس"></div>
 
-          <!-- وسائل النقل والأشياء -->
-          <div class="sticker-card" data-name="صاروخ rocket فضاء" data-src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png"><img src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png" alt="صاروخ"></div>
-          <div class="sticker-card" data-name="طائرة airplane سفر" data-src="https://cdn-icons-png.flaticon.com/512/7893/7893979.png"><img src="https://cdn-icons-png.flaticon.com/512/7893/7893979.png" alt="طائرة"></div>
-          <div class="sticker-card" data-name="سيارة car سباق" data-src="https://cdn-icons-png.flaticon.com/512/744/744465.png"><img src="https://cdn-icons-png.flaticon.com/512/744/744465.png" alt="سيارة"></div>
-          <div class="sticker-card" data-name="تاج crown ملك" data-src="https://cdn-icons-png.flaticon.com/512/616/616490.png"><img src="https://cdn-icons-png.flaticon.com/512/616/616490.png" alt="تاج"></div>
-          <div class="sticker-card" data-name="هدية gift مفاجأة" data-src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png"><img src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png" alt="هدية"></div>
+          <div class="sticker-card" data-name="صاروخ rocket فضاء" data-svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,10 C30,40 30,70 30,85 L70,85 C70,70 70,40 50,10 Z" fill="#ef4444"/><circle cx="50" cy="45" r="10" fill="#3b82f6"/><polygon points="30,60 10,85 30,85" fill="#dc2626"/><polygon points="70,60 90,85 70,85" fill="#dc2626"/><polygon points="40,85 50,100 60,85" fill="#f59e0b"/></svg>'><img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,10 C30,40 30,70 30,85 L70,85 C70,70 70,40 50,10 Z" fill="%23ef4444"/><circle cx="50" cy="45" r="10" fill="%233b82f6"/><polygon points="30,60 10,85 30,85" fill="%23dc2626"/><polygon points="70,60 90,85 70,85" fill="%23dc2626"/><polygon points="40,85 50,100 60,85" fill="%23f59e0b"/></svg>' alt="صاروخ"></div>
 
-          <!-- الطعام والحلوى -->
-          <div class="sticker-card" data-name="بيتزا pizza طعام" data-src="https://cdn-icons-png.flaticon.com/512/3595/3595455.png"><img src="https://cdn-icons-png.flaticon.com/512/3595/3595455.png" alt="بيتزا"></div>
-          <div class="sticker-card" data-name="آيس كريم icecream بوظة" data-src="https://cdn-icons-png.flaticon.com/512/938/938063.png"><img src="https://cdn-icons-png.flaticon.com/512/938/938063.png" alt="آيس كريم"></div>
-          <div class="sticker-card" data-name="كعكة cake ميلاد" data-src="https://cdn-icons-png.flaticon.com/512/2682/2682446.png"><img src="https://cdn-icons-png.flaticon.com/512/2682/2682446.png" alt="كعكة"></div>
-          <div class="sticker-card" data-name="دونات donut حلوى" data-src="https://cdn-icons-png.flaticon.com/512/3081/3081920.png"><img src="https://cdn-icons-png.flaticon.com/512/3081/3081920.png" alt="دونات"></div>
-          <div class="sticker-card" data-name="فراولة strawberry فاكهة" data-src="https://cdn-icons-png.flaticon.com/512/590/590685.png"><img src="https://cdn-icons-png.flaticon.com/512/590/590685.png" alt="فراولة"></div>
-          <div class="sticker-card" data-name="تفاحة apple فاكهة" data-src="https://cdn-icons-png.flaticon.com/512/415/415733.png"><img src="https://cdn-icons-png.flaticon.com/512/415/415733.png" alt="تفاحة"></div>
+          <div class="sticker-card" data-name="بيتزا pizza طعام" data-svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,10 10,90 90,90" fill="#f59e0b"/><path d="M10,90 Q50,100 90,90" fill="#d97706"/><circle cx="45" cy="40" r="6" fill="#ef4444"/><circle cx="60" cy="65" r="7" fill="#ef4444"/><circle cx="35" cy="70" r="5" fill="#ef4444"/></svg>'><img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,10 10,90 90,90" fill="%23f59e0b"/><path d="M10,90 Q50,100 90,90" fill="%23d97706"/><circle cx="45" cy="40" r="6" fill="%23ef4444"/><circle cx="60" cy="65" r="7" fill="%23ef4444"/><circle cx="35" cy="70" r="5" fill="%23ef4444"/></svg>' alt="بيتزا"></div>
+
+          <div class="sticker-card" data-name="قلب heart أحمر" data-svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,88 C20,60 5,40 20,20 C35,5 50,25 50,25 C50,25 65,5 80,20 C95,40 80,60 50,88 Z" fill="#ef4444"/></svg>'><img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,88 C20,60 5,40 20,20 C35,5 50,25 50,25 C50,25 65,5 80,20 C95,40 80,60 50,88 Z" fill="%23ef4444"/></svg>' alt="قلب"></div>
         </div>
       </div>
     </aside>
@@ -533,7 +504,7 @@
 
         <div class="canvas-container" id="canvasContainer">
           <div class="sticker-floating-menu" id="floatingMenu">
-            <button class="sticker-menu-btn btn-remove-bg" id="btnMenuRemoveBg" title="إزالة الخلفية السريعة">🪄</button>
+            <button class="sticker-menu-btn btn-remove-bg" id="btnMenuRemoveBg" title="إزالة الخلفية البيضاء">🪄</button>
             <button class="sticker-menu-btn btn-delete" id="btnDeleteSticker" title="حذف">🗑️</button>
             <button class="sticker-menu-btn btn-confirm" id="btnConfirmSticker" title="تأكيد وتثبيت">✔️</button>
           </div>
@@ -631,24 +602,31 @@
       redrawCanvas();
     };
 
+    // خوارزمية إزالة الخلفية المحسنة مع معالجة أحداث العزل الآمن
     function removeBackgroundFromActiveObj() {
-      if (!activeObj || !activeObj.img) return;
+      if (!activeObj || !activeObj.img) {
+        alert('يرجى تحديد أو رفع صورة أو ملصق أولاً!');
+        return;
+      }
 
       const tempCanvas = document.createElement('canvas');
       const tempCtx = tempCanvas.getContext('2d');
-      tempCanvas.width = activeObj.img.naturalWidth || activeObj.img.width;
-      tempCanvas.height = activeObj.img.naturalHeight || activeObj.img.height;
+      const w = activeObj.img.naturalWidth || activeObj.img.width || 300;
+      const h = activeObj.img.naturalHeight || activeObj.img.height || 300;
+      tempCanvas.width = w;
+      tempCanvas.height = h;
 
-      tempCtx.drawImage(activeObj.img, 0, 0, tempCanvas.width, tempCanvas.height);
-      const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+      tempCtx.drawImage(activeObj.img, 0, 0, w, h);
+      const imgData = tempCtx.getImageData(0, 0, w, h);
       const data = imgData.data;
 
+      // إزالة جميع البكسلات البيضاء والرمادية الفاتحة وحوافها
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
-        if (r > 220 && g > 220 && b > 220) {
-          data[i + 3] = 0;
+        if (r >= 210 && g >= 210 && b >= 210) {
+          data[i + 3] = 0; // تحويل إلى شفاف تام
         }
       }
 
@@ -743,11 +721,11 @@
     document.querySelectorAll('.sticker-card').forEach(card => {
       card.onclick = () => {
         lockActiveObject();
+        const svgString = card.dataset.svg;
         const img = new Image();
-        img.crossOrigin = "Anonymous";
         img.onload = () => {
-          let defaultW = 150;
-          let defaultH = (img.naturalHeight / img.naturalWidth) * defaultW;
+          let defaultW = 140;
+          let defaultH = 140;
 
           activeObj = {
             type: 'img',
@@ -760,7 +738,7 @@
 
           redrawCanvas();
         };
-        img.src = card.dataset.src;
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
       };
     });
 
