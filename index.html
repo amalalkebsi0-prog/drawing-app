@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -84,7 +85,6 @@
     .btn-warning { background: #f59e0b; color: #111; }
     .btn-danger { background: #ef4444; }
     .btn-success { background: #10b981; }
-    .btn-info { background: #06b6d4; }
 
     .main-layout {
       display: flex;
@@ -234,28 +234,37 @@
       border-color: var(--accent-color);
     }
 
-    .emoji-picker {
+    .sticker-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      max-height: 180px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-height: 220px;
       overflow-y: auto;
       padding-left: 4px;
     }
 
-    .emoji-btn {
+    .sticker-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      font-size: 1.4rem;
-      padding: 8px;
       border-radius: 10px;
+      padding: 10px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.2s;
+      height: 70px;
     }
 
-    .emoji-btn:hover, .emoji-btn.active {
+    .sticker-card img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .sticker-card:hover {
       background: var(--accent-color);
-      transform: scale(1.1);
+      transform: scale(1.05);
     }
 
     .content-area {
@@ -264,6 +273,7 @@
       gap: 24px;
       align-items: flex-start;
       flex-wrap: wrap;
+      position: relative;
     }
 
     .canvas-wrapper, .reference-wrapper {
@@ -272,6 +282,7 @@
       border-radius: var(--radius);
       border: 1px solid var(--border-color);
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      position: relative;
     }
 
     .canvas-header-bar {
@@ -307,6 +318,7 @@
       max-width: 850px;
       max-height: 600px;
       display: block;
+      position: relative;
     }
 
     canvas {
@@ -316,6 +328,43 @@
       transform-origin: top right;
       transition: transform 0.1s ease;
     }
+
+    /* أزرار التحكم العلوية للملصق تماماً مثل Sketchpad */
+    .sticker-floating-menu {
+      position: absolute;
+      display: none;
+      gap: 8px;
+      background: rgba(26, 29, 46, 0.9);
+      padding: 6px 12px;
+      border-radius: 30px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      transform: translate(-50%, -100%);
+    }
+
+    .sticker-menu-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: #24283b;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .sticker-menu-btn:hover {
+      transform: scale(1.15);
+    }
+
+    .sticker-menu-btn.btn-confirm { background: #10b981; }
+    .sticker-menu-btn.btn-delete { background: #ef4444; }
+    .sticker-menu-btn.btn-settings { background: #7a5af8; }
 
     #referenceImage {
       max-width: 260px;
@@ -333,7 +382,6 @@
     <div class="top-actions">
       <label for="imageLoader" class="btn btn-primary">📁 رفع صورة جديدة</label>
       <input type="file" id="imageLoader" accept="image/*" style="display:none;">
-      <button id="btnLockImage" class="btn btn-info" style="display:none;">📌 تثبيت العنصر</button>
       <button id="btnOutline" class="btn btn-purple">✨ تفريغ الألوان (أسود وأبيض)</button>
       <button id="btnUndo" class="btn btn-warning">↩️ تراجع</button>
       <button id="btnClear" class="btn btn-danger">🗑️ مسح الكل</button>
@@ -421,35 +469,39 @@
         </label>
       </div>
 
+      <!-- قسم الملصقات والقصاصات الفنية على طريقة Sketchpad -->
       <div class="tool-section">
-        <h3>😃 الملصقات الملونة</h3>
-        <input type="text" id="stickerSearch" class="sticker-search-input" placeholder="🔍 ابحث عن ملصق (نجمة, قلب, قطة...)...">
+        <h3>🐼 مكتبة الملصقات (Clipart)</h3>
+        <input type="text" id="stickerSearch" class="sticker-search-input" placeholder="🔍 ابحث عن ملصق (باندا, شمس, نجمة...)...">
 
-        <div class="emoji-picker" id="emojiContainer">
-          <button class="emoji-btn" data-emoji="⭐" data-name="نجمة نجمه star">⭐</button>
-          <button class="emoji-btn" data-emoji="❤️" data-name="قلب أحمر red heart">❤️</button>
-          <button class="emoji-btn" data-emoji="🔥" data-name="نار حريق fire">🔥</button>
-          <button class="emoji-btn" data-emoji="👑" data-name="تاج ملك crown">👑</button>
-          <button class="emoji-btn" data-emoji="🎉" data-name="حفلة احتفال party">🎉</button>
-          <button class="emoji-btn" data-emoji="🚀" data-name="صاروخ فضاء rocket">🚀</button>
-          <button class="emoji-btn" data-emoji="🌈" data-name="قوس قزح rainbow">🌈</button>
-          <button class="emoji-btn" data-emoji="🌸" data-name="وردة زهرة flower">🌸</button>
-          <button class="emoji-btn" data-emoji="🍦" data-name="آيس كريم بوظة ice cream">🍦</button>
-          <button class="emoji-btn" data-emoji="🎈" data-name="بالون balloon">🎈</button>
-          <button class="emoji-btn" data-emoji="🦄" data-name="وحيد القرن يونيكورن unicorn">🦄</button>
-          <button class="emoji-btn" data-emoji="🦋" data-name="فراشة butterfly">🦋</button>
-          <button class="emoji-btn" data-emoji="🐱" data-name="قطة قطه cat">🐱</button>
-          <button class="emoji-btn" data-emoji="🍕" data-name="بيتزا طعام pizza">🍕</button>
-          <button class="emoji-btn" data-emoji="🎁" data-name="هدية مفاجأة gift">🎁</button>
-          <button class="emoji-btn" data-emoji="💎" data-name="الماس جوهرة diamond">💎</button>
-          <button class="emoji-btn" data-emoji="🍀" data-name="حظ نبتة clover">🍀</button>
-          <button class="emoji-btn" data-emoji="🌻" data-name="دوار الشمس زهرة sunflower">🌻</button>
-          <button class="emoji-btn" data-emoji="🍓" data-name="فراولة فاكهة strawberry">🍓</button>
-          <button class="emoji-btn" data-emoji="⚡" data-name="برق كهرباء lightning">⚡</button>
-          <button class="emoji-btn" data-emoji="🎨" data-name="رسم ألوان art">🎨</button>
-          <button class="emoji-btn" data-emoji="🍭" data-name="حلوى مصاصة candy">🍭</button>
-          <button class="emoji-btn" data-emoji="🧸" data-name="دب لعبة bear">🧸</button>
-          <button class="emoji-btn" data-emoji="☀️" data-name="شمس صيف sun">☀️</button>
+        <div class="sticker-grid" id="stickerGrid">
+          <div class="sticker-card" data-name="باندا panda دب" data-src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png" alt="باندا">
+          </div>
+          <div class="sticker-card" data-name="طفل baby صغير" data-src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png" alt="طفل">
+          </div>
+          <div class="sticker-card" data-name="شمس sun صيف" data-src="https://cdn-icons-png.flaticon.com/512/869/869869.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" alt="شمس">
+          </div>
+          <div class="sticker-card" data-name="نجمة star حظ" data-src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="نجمة">
+          </div>
+          <div class="sticker-card" data-name="قلب heart أحمر" data-src="https://cdn-icons-png.flaticon.com/512/833/833472.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="قلب">
+          </div>
+          <div class="sticker-card" data-name="قطة cat قطه" data-src="https://cdn-icons-png.flaticon.com/512/616/616430.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616430.png" alt="قطة">
+          </div>
+          <div class="sticker-card" data-name="وردة زهرة flower" data-src="https://cdn-icons-png.flaticon.com/512/346/346167.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/346/346167.png" alt="وردة">
+          </div>
+          <div class="sticker-card" data-name="صاروخ rocket فضاء" data-src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png" alt="صاروخ">
+          </div>
+          <div class="sticker-card" data-name="تاج crown ملك" data-src="https://cdn-icons-png.flaticon.com/512/616/616490.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616490.png" alt="تاج">
+          </div>
         </div>
       </div>
     </aside>
@@ -466,7 +518,13 @@
           </div>
         </div>
 
-        <div class="canvas-container">
+        <div class="canvas-container" id="canvasContainer">
+          <!-- الأزرار العلوية العائمة الخاصة بالملصق مثل Sketchpad -->
+          <div class="sticker-floating-menu" id="floatingMenu">
+            <button class="sticker-menu-btn btn-settings" title="إعدادات">⚙️</button>
+            <button class="sticker-menu-btn btn-delete" id="btnDeleteSticker" title="حذف">🗑️</button>
+            <button class="sticker-menu-btn btn-confirm" id="btnConfirmSticker" title="تأكيد وتثبيت">✔️</button>
+          </div>
           <canvas id="paintCanvas" width="800" height="550"></canvas>
         </div>
       </div>
@@ -482,6 +540,7 @@
   <script>
     const canvas = document.getElementById('paintCanvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const floatingMenu = document.getElementById('floatingMenu');
 
     let isDrawing = false;
     let startX = 0, startY = 0;
@@ -490,39 +549,32 @@
     let currentTool = 'brush';
     let currentColor = '#000000';
     let lineWidth = 5;
-
-    let selectedEmoji = '⭐';
     let isFillShape = false;
 
     let originalImage = null;
     let undoStack = [];
     let currentZoom = 1.0;
 
-    // كائن الكائنات التفاعلية (سواء صورة عادي، تفريغ، أو ملصق)
-    let activeObj = null; // { type: 'img'|'emoji', img: Image, emoji: String, x, y, w, h }
+    // كائن التحكم بالملصق والصور القابلة للتحريك
+    let activeObj = null; // { type: 'img', img: Image, x, y, w, h }
     let isDraggingObj = false;
     let isResizingObj = false;
     let resizeHandle = null;
     let dragStart = { x: 0, y: 0 };
-    const handleSize = 16;
+    const handleSize = 14;
 
     function updateCanvasZoom() {
       canvas.style.transform = `scale(${currentZoom})`;
       document.getElementById('zoomLevelText').innerText = `${Math.round(currentZoom * 100)}%`;
+      positionFloatingMenu();
     }
 
     document.getElementById('btnZoomIn').onclick = () => {
-      if (currentZoom < 3.0) {
-        currentZoom += 0.2;
-        updateCanvasZoom();
-      }
+      if (currentZoom < 3.0) { currentZoom += 0.2; updateCanvasZoom(); }
     };
 
     document.getElementById('btnZoomOut').onclick = () => {
-      if (currentZoom > 0.4) {
-        currentZoom -= 0.2;
-        updateCanvasZoom();
-      }
+      if (currentZoom > 0.4) { currentZoom -= 0.2; updateCanvasZoom(); }
     };
 
     document.getElementById('btnZoomReset').onclick = () => {
@@ -539,20 +591,45 @@
       undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     }
 
+    function positionFloatingMenu() {
+      if (activeObj) {
+        floatingMenu.style.display = 'flex';
+        floatingMenu.style.left = `${(activeObj.x + activeObj.w / 2) * currentZoom}px`;
+        floatingMenu.style.top = `${(activeObj.y - 12) * currentZoom}px`;
+      } else {
+        floatingMenu.style.display = 'none';
+      }
+    }
+
+    function lockActiveObject() {
+      if (activeObj) {
+        ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
+        ctx.drawImage(activeObj.img, activeObj.x, activeObj.y, activeObj.w, activeObj.h);
+        activeObj = null;
+        floatingMenu.style.display = 'none';
+        canvas.style.cursor = 'crosshair';
+        saveState();
+      }
+    }
+
+    document.getElementById('btnConfirmSticker').onclick = lockActiveObject;
+
+    document.getElementById('btnDeleteSticker').onclick = () => {
+      activeObj = null;
+      floatingMenu.style.display = 'none';
+      redrawCanvas();
+    };
+
     function redrawCanvas() {
       if (undoStack.length > 0) {
         ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
       }
       if (activeObj) {
-        if (activeObj.type === 'img') {
-          ctx.drawImage(activeObj.img, activeObj.x, activeObj.y, activeObj.w, activeObj.h);
-        } else if (activeObj.type === 'emoji') {
-          ctx.font = `${activeObj.h}px sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(activeObj.emoji, activeObj.x + activeObj.w / 2, activeObj.y + activeObj.h / 2);
-        }
+        ctx.drawImage(activeObj.img, activeObj.x, activeObj.y, activeObj.w, activeObj.h);
         drawObjHandles();
+        positionFloatingMenu();
+      } else {
+        floatingMenu.style.display = 'none';
       }
     }
 
@@ -593,50 +670,56 @@
       };
     }
 
-    // تثبيت الكائن على اللوحة بدقة
-    document.getElementById('btnLockImage').onclick = () => {
-      if (activeObj) {
-        ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
-        if (activeObj.type === 'img') {
-          ctx.drawImage(activeObj.img, activeObj.x, activeObj.y, activeObj.w, activeObj.h);
-        } else if (activeObj.type === 'emoji') {
-          ctx.font = `${activeObj.h}px sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(activeObj.emoji, activeObj.x + activeObj.w / 2, activeObj.y + activeObj.h / 2);
-        }
-        activeObj = null;
-        document.getElementById('btnLockImage').style.display = 'none';
-        canvas.style.cursor = 'crosshair';
-        saveState();
-      }
-    };
-
     document.getElementById('btnUndo').onclick = () => {
       if (undoStack.length > 1) {
         undoStack.pop();
         activeObj = null;
-        document.getElementById('btnLockImage').style.display = 'none';
+        floatingMenu.style.display = 'none';
         ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
       }
     };
 
     document.getElementById('btnClear').onclick = () => {
       activeObj = null;
-      document.getElementById('btnLockImage').style.display = 'none';
+      floatingMenu.style.display = 'none';
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       saveState();
     };
 
     document.getElementById('btnSave').onclick = () => {
+      lockActiveObject();
       const link = document.createElement('a');
       link.download = 'drawing.png';
       link.href = canvas.toDataURL();
       link.click();
     };
 
-    // رفع صورة
+    // إضافة ملصق من المعرض بأسلوب Sketchpad
+    document.querySelectorAll('.sticker-card').forEach(card => {
+      card.onclick = () => {
+        lockActiveObject();
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => {
+          let defaultW = 150;
+          let defaultH = (img.naturalHeight / img.naturalWidth) * defaultW;
+
+          activeObj = {
+            type: 'img',
+            img: img,
+            x: (canvas.width - defaultW) / 2,
+            y: (canvas.height - defaultH) / 2,
+            w: defaultW,
+            h: defaultH
+          };
+
+          redrawCanvas();
+        };
+        img.src = card.dataset.src;
+      };
+    });
+
     document.getElementById('imageLoader').onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -659,7 +742,6 @@
             h: defaultH
           };
 
-          document.getElementById('btnLockImage').style.display = 'inline-flex';
           redrawCanvas();
 
           document.getElementById('referenceImage').src = img.src;
@@ -670,7 +752,6 @@
       reader.readAsDataURL(file);
     };
 
-    // تفريغ الألوان
     document.getElementById('btnOutline').onclick = () => {
       if (!originalImage) {
         alert('يرجى رفع صورة أولاً!');
@@ -745,38 +826,14 @@
           h: defaultH
         };
 
-        document.getElementById('btnLockImage').style.display = 'inline-flex';
         redrawCanvas();
       };
       outlinedImg.src = tempCanvas.toDataURL();
     };
 
-    // اختيار الملصق وإظهاره ككائن قابل للتكبير والتحريك
-    document.querySelectorAll('.emoji-btn').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.emoji-btn').forEach(e => e.classList.remove('active'));
-        btn.classList.add('active');
-        selectedEmoji = btn.dataset.emoji;
-
-        activeObj = {
-          type: 'emoji',
-          emoji: selectedEmoji,
-          x: canvas.width / 2 - 50,
-          y: canvas.height / 2 - 50,
-          w: 100,
-          h: 100
-        };
-
-        document.getElementById('btnLockImage').style.display = 'inline-flex';
-        redrawCanvas();
-      };
-    });
-
     document.querySelectorAll('.tool-btn').forEach(btn => {
       btn.onclick = () => {
         document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.emoji-btn').forEach(e => e.classList.remove('active'));
         btn.classList.add('active');
         currentTool = btn.dataset.tool;
       };
@@ -803,13 +860,9 @@
 
     document.getElementById('stickerSearch').oninput = (e) => {
       const query = e.target.value.toLowerCase().trim();
-      document.querySelectorAll('.emoji-btn').forEach(btn => {
-        const name = btn.dataset.name.toLowerCase();
-        if (name.includes(query)) {
-          btn.style.display = 'inline-block';
-        } else {
-          btn.style.display = 'none';
-        }
+      document.querySelectorAll('.sticker-card').forEach(card => {
+        const name = card.dataset.name.toLowerCase();
+        card.style.display = name.includes(query) ? 'flex' : 'none';
       });
     };
 
@@ -843,9 +896,7 @@
       }
       ctx.lineTo(cx, cy - outerRadius);
       ctx.closePath();
-      if (isFillShape) {
-        ctx.fill();
-      }
+      if (isFillShape) { ctx.fill(); }
       ctx.stroke();
     }
 
@@ -875,6 +926,8 @@
           canvas.style.cursor = 'move';
           return;
         }
+
+        lockActiveObject();
       }
 
       isDrawing = true;
@@ -964,16 +1017,12 @@
           ctx.fillRect(pos.x + (Math.random() - 0.5) * lineWidth * 2, pos.y + (Math.random() - 0.5) * lineWidth * 2, 1, 1);
         }
       } else if (currentTool === 'rectangle') {
-        if (isFillShape) {
-          ctx.fillRect(startX, startY, pos.x - startX, pos.y - startY);
-        }
+        if (isFillShape) { ctx.fillRect(startX, startY, pos.x - startX, pos.y - startY); }
         ctx.strokeRect(startX, startY, pos.x - startX, pos.y - startY);
       } else if (currentTool === 'circle') {
         ctx.beginPath();
         ctx.arc(startX, startY, Math.hypot(pos.x - startX, pos.y - startY), 0, Math.PI * 2);
-        if (isFillShape) {
-          ctx.fill();
-        }
+        if (isFillShape) { ctx.fill(); }
         ctx.stroke();
       } else if (currentTool === 'triangle') {
         ctx.beginPath();
@@ -981,9 +1030,7 @@
         ctx.lineTo(startX + (pos.x - startX) / 2, startY);
         ctx.lineTo(pos.x, pos.y);
         ctx.closePath();
-        if (isFillShape) {
-          ctx.fill();
-        }
+        if (isFillShape) { ctx.fill(); }
         ctx.stroke();
       } else if (currentTool === 'star') {
         const radius = Math.hypot(pos.x - startX, pos.y - startY);
