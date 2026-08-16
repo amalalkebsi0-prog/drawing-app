@@ -1,65 +1,115 @@
-:root {
-  --primary-color: #4f46e5;
-  --bg-color: #f8fafc;
-  --panel-bg: #ffffff;
-  --text-color: #1e293b;
-  --border-radius: 12px;
-}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تطبيق الرسم والتلوين الاحترافي</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-header">
+    <h1>🎨 تطبيق الرسم والتلوين الاحترافي</h1>
+    <div class="top-actions">
+      <label for="imageLoader" class="btn btn-primary">📁 رفع صورة جديدة</label>
+      <input type="file" id="imageLoader" accept="image/*" style="display:none;">
+      <button id="btnOutline" class="btn btn-purple">✨ تفريغ الألوان (أسود وأبيض)</button>
+      <button id="btnUndo" class="btn btn-warning">↩️ تراجع</button>
+      <button id="btnClear" class="btn btn-danger">🗑️ مسح الكل</button>
+      <button id="btnSave" class="btn btn-success">💾 حفظ اللوحة</button>
+    </div>
+  </div>
 
-body {
-  margin: 0;
-  padding: 20px;
-  background-color: var(--bg-color);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--text-color);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+  <div class="main-layout">
+    <!-- الشريط الجانبي للأدوات (الجانب الأيمن) -->
+    <aside class="sidebar">
+      <!-- لوحة الألوان -->
+      <div class="tool-section">
+        <h3>🎨 الألوان</h3>
+        <div class="color-palette" id="colorPalette">
+          <div class="color-dot active" style="background: #000000" data-color="#000000"></div>
+          <div class="color-dot" style="background: #e63946" data-color="#e63946"></div>
+          <div class="color-dot" style="background: #457b9d" data-color="#457b9d"></div>
+          <div class="color-dot" style="background: #2a9d8f" data-color="#2a9d8f"></div>
+          <div class="color-dot" style="background: #e9c46a" data-color="#e9c46a"></div>
+          <div class="color-dot" style="background: #f4a261" data-color="#f4a261"></div>
+          <div class="color-dot" style="background: #e76f51" data-color="#e76f51"></div>
+          <div class="color-dot" style="background: #9b5de5" data-color="#9b5de5"></div>
+          <div class="color-dot" style="background: #f15bb5" data-color="#f15bb5"></div>
+          <div class="color-dot" style="background: #ffffff; border: 1px solid #ccc" data-color="#ffffff"></div>
+        </div>
+        <div class="custom-color-picker">
+          <label for="customColor">لون مخصص:</label>
+          <input type="color" id="customColor" value="#000000">
+        </div>
+      </div>
 
-/* شريط الأدوات العائم */
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  background: var(--panel-bg);
-  padding: 12px 20px;
-  border-radius: var(--border-radius);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  align-items: center;
-}
+      <!-- الحجم وسماكة الفرشاة -->
+      <div class="tool-section">
+        <h3>📏 الحجم / السماكة</h3>
+        <input type="range" id="lineWidth" min="1" max="60" value="5">
+        <span id="widthValue">5 px</span>
+      </div>
 
-.btn {
-  background-color: #f1f5f9;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
+      <!-- أنواع الفرش والأدوات -->
+      <div class="tool-section">
+        <h3>🖌️ الفرش والأدوات</h3>
+        <div class="grid-buttons">
+          <button class="tool-btn active" data-tool="brush">🖌️ فرشاة ناعمة</button>
+          <button class="tool-btn" data-tool="pen">✏️ قلم حد</button>
+          <button class="tool-btn" data-tool="spray">💨 بخاخ</button>
+          <button class="tool-btn" data-tool="eraser">🧹 ممحاة</button>
+          <button class="tool-btn" data-tool="fill">🪣 دلو تعبئة</button>
+        </div>
+      </div>
 
-.btn:hover {
-  background-color: var(--primary-color);
-  color: #fff;
-}
+      <!-- الأشكال الهندسية -->
+      <div class="tool-section">
+        <h3>📐 الأشكال الهندسية</h3>
+        <div class="grid-buttons">
+          <button class="tool-btn" data-tool="rectangle">⬛ مربع</button>
+          <button class="tool-btn" data-tool="circle">⚪ دائرة</button>
+          <button class="tool-btn" data-tool="triangle">🔺 مثلث</button>
+          <button class="tool-btn" data-tool="star">⭐ نجمة</button>
+          <button class="tool-btn" data-tool="line">📏 خط مستقيم</button>
+        </div>
+        <div class="checkbox-option">
+          <input type="checkbox" id="fillShape">
+          <label for="fillShape">تعبئة الشكل باللون</label>
+        </div>
+      </div>
 
-.btn.active {
-  background-color: var(--primary-color);
-  color: #fff;
-}
+      <!-- الملصقات -->
+      <div class="tool-section">
+        <h3>😃 الملصقات</h3>
+        <div class="emoji-picker" id="emojiPicker">
+          <button class="emoji-btn" data-emoji="⭐">⭐</button>
+          <button class="emoji-btn" data-emoji="❤️">❤️</button>
+          <button class="emoji-btn" data-emoji="🔥">🔥</button>
+          <button class="emoji-btn" data-emoji="🎉">🎉</button>
+          <button class="emoji-btn" data-emoji="👑">👑</button>
+          <button class="emoji-btn" data-emoji="🚀">🚀</button>
+          <button class="emoji-btn" data-emoji="🌈">🌈</button>
+          <button class="emoji-btn" data-emoji="🌸">🌸</button>
+        </div>
+      </div>
+    </aside>
 
-/* منطقة الكانفاس */
-.canvas-container {
-  position: relative;
-  background: #ffffff;
-  border-radius: var(--border-radius);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
+    <!-- منطقة الكانفاس والمعاينة -->
+    <main class="content-area">
+      <div class="canvas-wrapper">
+        <h3>لوحة الرسم والتلوين (دقة عالية):</h3>
+        <div class="canvas-container">
+          <canvas id="paintCanvas" width="800" height="600"></canvas>
+        </div>
+      </div>
 
-canvas {
-  display: block;
-  cursor: crosshair;
-}
+      <div class="reference-wrapper" id="referenceWrapper" style="display:none;">
+        <h3>المرجع الملون:</h3>
+        <img id="referenceImage" src="" alt="مرجع الصورة">
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
