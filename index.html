@@ -38,7 +38,7 @@
             text-align: center;
         }
 
-        /* تخطيط الصفحة: القائمة على اليسار ومساحة العمل بجانبها */
+        /* تخطيط الصفحة الرئيسي: القائمة على اليمين ولوحات الرسم على اليسار */
         .main-layout {
             display: flex;
             gap: 25px;
@@ -46,10 +46,10 @@
             max-width: 1400px;
             justify-content: center;
             align-items: flex-start;
-            flex-wrap: wrap;
+            flex-wrap: wrap-reverse;
         }
 
-        /* القائمة الجانبية على اليسار */
+        /* القائمة الجانبية على اليمين */
         .sidebar {
             background-color: var(--bg-secondary);
             border: 1px solid var(--border);
@@ -158,7 +158,7 @@
         .btn-clear-colors { background-color: #0d9488; }
         .btn-clear-all { background-color: #dc2626; }
 
-        /* منطقة اللوحات على اليمين */
+        /* منطقة اللوحات */
         .workspace {
             display: flex;
             gap: 20px;
@@ -215,7 +215,24 @@
     <h1>🎨 استوديو الرسم والتلوين التفاعلي</h1>
 
     <div class="main-layout">
-        <!-- القائمة الجانبية على اليسار -->
+        <!-- مساحة اللوحات على اليسار -->
+        <div class="workspace">
+            <div class="canvas-card">
+                <h3>المرجع (الصورة الأصلية)</h3>
+                <div class="canvas-container">
+                    <canvas id="refCanvas" width="280" height="210"></canvas>
+                </div>
+            </div>
+
+            <div class="canvas-card">
+                <h3>لوحة التلوين والرسام</h3>
+                <div class="canvas-container" id="mainContainer">
+                    <canvas id="mainCanvas" width="750" height="550"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- القائمة الجانبية على اليمين -->
         <div class="sidebar">
             <label class="upload-btn">
                 📂 رفع صورة جديدة
@@ -254,23 +271,6 @@
             <button class="btn btn-undo" onclick="undoAction()">↩️ تراجع عن الخطوة</button>
             <button class="btn btn-clear-colors" onclick="clearColorsOnly()">🧼 تفريغ الألوان</button>
             <button class="btn btn-clear-all" onclick="clearAll()">🔄 مسح اللوحة بالكامل</button>
-        </div>
-
-        <!-- مساحة اللوحات على اليمين -->
-        <div class="workspace">
-            <div class="canvas-card">
-                <h3>المرجع (الصورة الأصلية)</h3>
-                <div class="canvas-container">
-                    <canvas id="refCanvas" width="280" height="210"></canvas>
-                </div>
-            </div>
-
-            <div class="canvas-card">
-                <h3>لوحة التلوين والرسام</h3>
-                <div class="canvas-container" id="mainContainer">
-                    <canvas id="mainCanvas" width="750" height="550"></canvas>
-                </div>
-            </div>
         </div>
     </div>
 
