@@ -1,546 +1,119 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>استوديو كتب التلوين الاحترافي</title>
+    <title>استوديو التلوين المباشر (معالجة يدوية)</title>
     <style>
-        :root {
-            --primary-color: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-color: #1f2937;
-            --border-color: #e5e7eb;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            align-items: center;
-            padding: 20px;
-        }
-
-        header {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        header h1 {
-            color: var(--primary-color);
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-
-        header p {
-            color: #6b7280;
-            font-size: 0.95rem;
-        }
-
-        .main-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            max-width: 1050px;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .controls-panel {
-            width: 100%;
-            max-width: 320px;
-            gap: 15px;
-        }
-
-        .canvas-panel {
-            flex-grow: 1;
-            max-width: 600px;
-        }
-
-        .section-title {
-            font-size: 1.05rem;
-            margin-bottom: 8px;
-            color: #374151;
-            font-weight: 600;
-            align-self: flex-start;
-        }
-
-        .tools-group {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 15px;
-        }
-
-        .tool-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .tool-row label {
-            font-size: 0.9rem;
-            color: #4b5563;
-        }
-
-        input[type="color"] {
-            border: none;
-            width: 40px;
-            height: 30px;
-            border-radius: 4px;
-            cursor: pointer;
-            background: none;
-        }
-
-        input[type="range"] {
-            width: 60%;
-            cursor: pointer;
-        }
-
-        .btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            width: 100%;
-            transition: background-color 0.2s;
-            margin-top: 5px;
-            text-align: center;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .btn-secondary {
-            background-color: #6b7280;
-        }
-
-        .btn-secondary:hover {
-            background-color: #4b5563;
-        }
-
-        .btn-success {
-            background-color: #10b981;
-        }
-
-        .btn-success:hover {
-            background-color: #059669;
-        }
-
-        .btn-warning {
-            background-color: #f59e0b;
-        }
-
-        .btn-warning:hover {
-            background-color: #d97706;
-        }
-
-        .canvas-wrapper {
-            position: relative;
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            overflow: hidden;
-            background: #fff;
-            cursor: crosshair;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 400px;
-        }
-
-        canvas {
-            display: block;
-            touch-action: none;
-        }
-
-        .actions-row {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        .upload-btn-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-            margin-bottom: 5px;
-        }
-
-        .upload-btn-wrapper input[type=file] {
-            font-size: 100px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            gap: 10px;
-            font-weight: 600;
-            color: var(--primary-color);
-            z-index: 10;
-            display: none;
-        }
+        :root { --primary: #4f46e5; --bg: #f3f4f6; }
+        body { background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: sans-serif; }
+        .main-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+        .canvas-wrapper { border: 4px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: white; cursor: crosshair; }
+        .controls { display: flex; flex-direction: column; gap: 10px; width: 300px; }
+        button { padding: 10px; cursor: pointer; border-radius: 5px; border: none; background: var(--primary); color: white; font-weight: bold; }
+        .btn-reset { background: #ef4444; }
+        .btn-undo { background: #f59e0b; }
+        input[type="file"] { margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>استوديو كتب التلوين الاحترافي</h1>
-        <p>ارفع صورتك الملونة، ثم اضغط على زر تحويلها لرسمة تلوين متى شئت</p>
-    </header>
-
+    <h1>استوديو التلوين المباشر</h1>
+    
     <div class="main-container">
-        <!-- لوحة التحكم -->
-        <div class="card controls-panel">
-            
-            <div class="section-title">📁 رفع الصورة</div>
-            <div class="upload-btn-wrapper">
-                <button class="btn btn-success">اختر صورة ملونة</button>
-                <input type="file" id="imageUploader" accept="image/png, image/jpeg, image/jpg" />
-            </div>
-
-            <div class="tools-group" style="border-top: none; padding-top: 0;">
-                <div class="section-title" style="margin-bottom: 5px;">🪄 تحويل وتجهيز</div>
-                <button class="btn btn-warning" onclick="convertToColoringBook()" style="color: white;">🎨 تحويل إلى كتاب تلوين (سكتش)</button>
-                <button class="btn btn-secondary" onclick="restoreOriginalImage()">🔄 استعادة الصورة الأصلية الملونة</button>
-            </div>
-
-            <div class="tools-group">
-                <div class="section-title" style="margin-bottom: 5px;">🖌️ أدوات التلوين</div>
-                
-                <div class="tool-row">
-                    <label>لون الفرشاة:</label>
-                    <input type="color" id="colorPicker" value="#ff4757">
-                </div>
-
-                <div class="tool-row">
-                    <label>حجم الفرشاة:</label>
-                    <input type="range" id="brushSize" min="2" max="40" value="10">
-                </div>
-
-                <div class="tool-row" style="margin-top: 5px;">
-                    <button class="btn btn-secondary" onclick="setEraser()" style="margin: 0; width: 48%;">ممحاة</button>
-                    <button class="btn" onclick="setBrush()" style="margin: 0; width: 48%;">فرشاة</button>
-                </div>
-            </div>
-
-            <div class="tools-group">
-                <button class="btn btn-secondary" onclick="undoAction()" style="background-color: #f59e0b;">↩️ تراجع عن الخطوة</button>
-                <button class="btn btn-secondary" onclick="clearColorsOnly()">مسح الألوان المضافة</button>
-                <button class="btn btn-secondary" onclick="resetCanvasBackground()" style="background-color: #ef4444;">إفراغ اللوحة تماماً</button>
-            </div>
+        <div class="controls">
+            <input type="file" id="imageUploader" accept="image/*">
+            <button onclick="applyColoringBookFilter()">تحويل لرسمة تلوين (بدون ذكاء اصطناعي)</button>
+            <button onclick="restoreOriginal()">استعادة الصورة الأصلية</button>
+            <hr style="width:100%">
+            <label>لون الفرشاة: <input type="color" id="colorPicker" value="#ff4757"></label>
+            <label>حجم الفرشاة: <input type="range" id="brushSize" min="2" max="20" value="5"></label>
+            <button class="btn-undo" onclick="undo()">تراجع عن التلوين</button>
+            <button class="btn-reset" onclick="clearColors()">مسح الألوان فقط</button>
         </div>
 
-        <!-- لوحة الرسم والعرض -->
-        <div class="card canvas-panel">
-            <div class="section-title">لوحة العمل</div>
-            <div class="canvas-wrapper" id="canvasWrapper">
-                <div class="loading-overlay" id="loadingOverlay">
-                    <span>جاري المعالجة... ⏳</span>
-                </div>
-                <canvas id="drawingCanvas" width="500" height="380"></canvas>
-            </div>
-            
-            <div class="actions-row">
-                <button class="btn" onclick="saveImage()">💾 حفظ الصورة النهائية</button>
-            </div>
+        <div class="canvas-wrapper">
+            <canvas id="drawingCanvas" width="500" height="400"></canvas>
         </div>
     </div>
 
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
-        const colorPicker = document.getElementById('colorPicker');
-        const brushSize = document.getElementById('brushSize');
-        const imageUploader = document.getElementById('imageUploader');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-
-        let isDrawing = false;
-        let isEraser = false;
-        let originalImageObj = null; // الاحتفاظ بالصورة الأصلية الملونة
-        let currentModeObj = null;   // الصورة الحالية (سواء أصلية أو محولة لسكتش)
+        let originalImageData = null;
+        let drawing = false;
         let undoStack = [];
 
-        window.onload = () => {
-            resetCanvasBackground();
-            drawDefaultWelcome();
-        };
-
-        function drawDefaultWelcome() {
-            ctx.fillStyle = "#6b7280";
-            ctx.font = "15px 'Segoe UI'";
-            ctx.textAlign = "center";
-            ctx.fillText("قم برفع صورة ملونة من القائمة الجانبية للبدء", canvas.width / 2, canvas.height / 2);
-        }
-
-        function resetCanvasBackground() {
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            originalImageObj = null;
-            currentModeObj = null;
-            undoStack = [];
-            imageUploader.value = '';
-        }
-
-        function saveState() {
-            undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-            if (undoStack.length > 25) undoStack.shift();
-        }
-
-        function undoAction() {
-            if (undoStack.length > 0) {
-                const prevState = undoStack.pop();
-                ctx.putImageData(prevState, 0, 0);
-            } else {
-                alert("لا توجد خطوات للتراجع عنها!");
-            }
-        }
-
-        // عند رفع الصورة: تظهر ملونة كما هي تماماً وبدون أي تعديل
-        imageUploader.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            loadingOverlay.style.display = 'flex';
-
+        // رفع الصورة
+        document.getElementById('imageUploader').addEventListener('change', function(e) {
             const reader = new FileReader();
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
-                    resetCanvasBackground();
-                    
-                    const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-                    const newWidth = img.width * scale;
-                    const newHeight = img.height * scale;
-                    const x = (canvas.width / 2) - (newWidth / 2);
-                    const y = (canvas.height / 2) - (newHeight / 2);
-
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, x, y, newWidth, newHeight);
-
-                    // حفظ النسخة الأصلية الملونة
-                    originalImageObj = new Image();
-                    originalImageObj.src = canvas.toDataURL();
-                    originalImageObj.onload = function() {
-                        currentModeObj = originalImageObj;
-                        saveState();
-                        loadingOverlay.style.display = 'none';
-                    };
-                }
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    saveState();
+                };
                 img.src = event.target.result;
-            }
-            reader.readAsDataURL(file);
+            };
+            reader.readAsDataURL(e.target.files[0]);
         });
 
-        // زر التحويل إلى كتاب تلوين (توليد خطوط وتحديدات أبيض وأسود نظيفة جداً)
-        function convertToColoringBook() {
-            if (!originalImageObj) {
-                alert("الرجاء رفع صورة ملونة أولاً!");
-                return;
-            }
-
-            loadingOverlay.style.display = 'flex';
-            setTimeout(() => {
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = canvas.width;
-                tempCanvas.height = canvas.height;
-                const tCtx = tempCanvas.getContext('2d');
-
-                tCtx.fillStyle = "#ffffff";
-                tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                tCtx.drawImage(originalImageObj, 0, 0);
-
-                const imgData = tCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-                const data = imgData.data;
-
-                // تحويل مخصص لاكتشاف الحواف وإبراز الخطوط تماماً مثل كتب التلوين
-                let width = tempCanvas.width;
-                let height = tempCanvas.height;
-                let gray = new Float32Array(width * height);
-
-                for (let i = 0, j = 0; i < data.length; i += 4, j++) {
-                    gray[j] = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
-                }
-
-                let edgeData = tCtx.createImageData(width, height);
-                let ed = edgeData.data;
-
-                for (let y = 1; y < height - 1; y++) {
-                    for (let x = 1; x < width - 1; x++) {
-                        let idx = y * width + x;
-                        // حساب الـ Sobel Operator البسيط لاستخراج الحواف والخطوط السوداء النظيفة
-                        let gx = -gray[idx - width - 1] + gray[idx - width + 1]
-                                 -2 * gray[idx - 1] + 2 * gray[idx + 1]
-                                 -gray[idx + width - 1] + gray[idx + width + 1];
-                        
-                        let gy = -gray[idx - width - 1] - 2 * gray[idx - width] - gray[idx - width + 1]
-                                 +gray[idx + width - 1] + 2 * gray[idx + width] + gray[idx + width + 1];
-
-                        let val = Math.sqrt(gx * gx + gy * gy);
-                        let p = val > 35 ? 0 : 255; // خطوط سوداء واضحة على خلفية بيضاء
-
-                        let i4 = idx * 4;
-                        ed[i4] = p;
-                        ed[i4 + 1] = p;
-                        ed[i4 + 2] = p;
-                        ed[i4 + 3] = 255;
-                    }
-                }
-
-                tCtx.putImageData(edgeData, 0, 0);
-                
-                let sketchImg = new Image();
-                sketchImg.src = tempCanvas.toDataURL();
-                sketchImg.onload = function() {
-                    ctx.drawImage(sketchImg, 0, 0);
-                    currentModeObj = sketchImg;
-                    saveState();
-                    loadingOverlay.style.display = 'none';
-                };
-            }, 50);
-        }
-
-        // زر استعادة الصورة الأصلية الملونة
-        function restoreOriginalImage() {
-            if (!originalImageObj) {
-                alert("لا توجد صورة مرفوعة!");
-                return;
-            }
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(originalImageObj, 0, 0);
-            currentModeObj = originalImageObj;
+        // تحويل الصورة لرسمة تلوين (معالجة رياضية يدوية)
+        function applyColoringBookFilter() {
+            if (!originalImageData) return;
             saveState();
-        }
-
-        function clearColorsOnly() {
-            if (currentModeObj) {
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(currentModeObj, 0, 0);
-                saveState();
-            } else {
-                resetCanvasBackground();
-                drawDefaultWelcome();
-            }
-        }
-
-        function getMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: (e.clientX || e.touches[0].clientX) - rect.left,
-                y: (e.clientY || e.touches[0].clientY) - rect.top
-            };
-        }
-
-        function startPosition(e) {
-            saveState();
-            isDrawing = true;
-            draw(e);
-        }
-
-        function endPosition() {
-            isDrawing = false;
-            ctx.beginPath();
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            e.preventDefault();
-
-            const pos = getMousePos(e);
-
-            ctx.lineWidth = brushSize.value;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-
-            if (isEraser) {
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.strokeStyle = 'rgba(0,0,0,1)';
-            } else {
-                ctx.globalCompositeOperation = 'multiply'; // يتيح التلوين فوق الخطوط بانسجام تام
-                ctx.strokeStyle = colorPicker.value;
-            }
-
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
-        }
-
-        canvas.addEventListener('mousedown', startPosition);
-        canvas.addEventListener('mouseup', endPosition);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseout', endPosition);
-
-        canvas.addEventListener('touchstart', startPosition);
-        canvas.addEventListener('touchend', endPosition);
-        canvas.addEventListener('touchmove', draw);
-
-        function setEraser() { isEraser = true; }
-        function setBrush() { isEraser = false; }
-
-        function saveImage() {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = canvas.height;
-            const tCtx = tempCanvas.getContext('2d');
+            let src = originalImageData.data;
+            let width = canvas.width;
+            let height = canvas.height;
+            let tempCanvas = document.createElement('canvas');
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            let tCtx = tempCanvas.getContext('2d');
+            tCtx.putImageData(originalImageData, 0, 0);
             
-            tCtx.fillStyle = '#ffffff';
-            tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-            tCtx.drawImage(canvas, 0, 0);
+            let imgData = tCtx.getImageData(0, 0, width, height);
+            let data = imgData.data;
 
-            const link = document.createElement('a');
-            link.download = 'coloring-book-image.png';
-            link.href = tempCanvas.toDataURL();
-            link.click();
+            for (let i = 0; i < data.length; i += 4) {
+                let gray = 0.2126 * data[i] + 0.7152 * data[i+1] + 0.0722 * data[i+2];
+                data[i] = data[i+1] = data[i+2] = gray;
+            }
+
+            // اكتشاف الحواف البسيط
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    let idx = (y * width + x) * 4;
+                    let diff = Math.abs(data[idx] - data[((y+1) * width + x + 1) * 4]);
+                    let color = diff > 15 ? 0 : 255;
+                    data[idx] = data[idx+1] = data[idx+2] = color;
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
         }
+
+        function restoreOriginal() {
+            if (originalImageData) ctx.putImageData(originalImageData, 0, 0);
+        }
+
+        // أدوات التلوين
+        function saveState() { undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height)); }
+        function undo() { if (undoStack.length > 1) { undoStack.pop(); ctx.putImageData(undoStack[undoStack.length-1], 0, 0); } }
+        function clearColors() { restoreOriginal(); }
+
+        canvas.onmousedown = () => { saveState(); drawing = true; };
+        canvas.onmouseup = () => { drawing = false; ctx.beginPath(); };
+        canvas.onmousemove = (e) => {
+            if (!drawing) return;
+            ctx.lineWidth = document.getElementById('brushSize').value;
+            ctx.strokeStyle = document.getElementById('colorPicker').value;
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.lineCap = 'round';
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        };
     </script>
 </body>
 </html>
