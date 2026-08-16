@@ -469,7 +469,6 @@
         </label>
       </div>
 
-      <!-- مكتبة الملصقات الشاملة مع خيارات البحث المحسنة -->
       <div class="tool-section">
         <h3>🐼 مكتبة الملصقات الشاملة (Clipart)</h3>
         <input type="text" id="stickerSearch" class="sticker-search-input" placeholder="🔍 ابحث (باندا, شمس, قطة, طائرة, بيتزا...)...">
@@ -632,7 +631,6 @@
       redrawCanvas();
     };
 
-    // خوارزمية إزالة الخلفية التلقائية للصورة/الملصق المختار
     function removeBackgroundFromActiveObj() {
       if (!activeObj || !activeObj.img) return;
 
@@ -645,13 +643,12 @@
       const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
       const data = imgData.data;
 
-      // تحليل وتحويل الخلفية البيضاء أو الفاتحة الشديدة إلى شفافة (Alpha = 0)
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
         if (r > 220 && g > 220 && b > 220) {
-          data[i + 3] = 0; // تحويل للشفافية
+          data[i + 3] = 0;
         }
       }
 
