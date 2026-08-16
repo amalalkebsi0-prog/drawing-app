@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -235,24 +234,6 @@
       border-color: var(--accent-color);
     }
 
-    .sticker-size-control {
-      background: var(--card-bg);
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .sticker-preview-box {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: var(--text-sub);
-    }
-
     .emoji-picker {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -352,7 +333,7 @@
     <div class="top-actions">
       <label for="imageLoader" class="btn btn-primary">📁 رفع صورة جديدة</label>
       <input type="file" id="imageLoader" accept="image/*" style="display:none;">
-      <button id="btnLockImage" class="btn btn-info" style="display:none;">📌 تثبيت الصورة</button>
+      <button id="btnLockImage" class="btn btn-info" style="display:none;">📌 تثبيت العنصر</button>
       <button id="btnOutline" class="btn btn-purple">✨ تفريغ الألوان (أسود وأبيض)</button>
       <button id="btnUndo" class="btn btn-warning">↩️ تراجع</button>
       <button id="btnClear" class="btn btn-danger">🗑️ مسح الكل</button>
@@ -444,15 +425,6 @@
         <h3>😃 الملصقات الملونة</h3>
         <input type="text" id="stickerSearch" class="sticker-search-input" placeholder="🔍 ابحث عن ملصق (نجمة, قلب, قطة...)...">
 
-        <div class="sticker-size-control">
-          <div class="sticker-preview-box">
-            <span>حجم الملصق:</span>
-            <span id="stickerPreview" style="font-size: 1.5rem;">⭐</span>
-            <span id="stickerSizeText">60px</span>
-          </div>
-          <input type="range" id="stickerSizeSlider" min="20" max="250" value="60">
-        </div>
-
         <div class="emoji-picker" id="emojiContainer">
           <button class="emoji-btn" data-emoji="⭐" data-name="نجمة نجمه star">⭐</button>
           <button class="emoji-btn" data-emoji="❤️" data-name="قلب أحمر red heart">❤️</button>
@@ -520,20 +492,19 @@
     let lineWidth = 5;
 
     let selectedEmoji = '⭐';
-    let stickerSize = 60;
     let isFillShape = false;
 
     let originalImage = null;
     let undoStack = [];
     let currentZoom = 1.0;
 
-    let uploadedImgObj = null;
-    let imgTransform = { x: 50, y: 50, w: 300, h: 300 };
-    let isDraggingImg = false;
-    let isResizingImg = false;
+    // كائن الكائنات التفاعلية (سواء صورة عادي، تفريغ، أو ملصق)
+    let activeObj = null; // { type: 'img'|'emoji', img: Image, emoji: String, x, y, w, h }
+    let isDraggingObj = false;
+    let isResizingObj = false;
     let resizeHandle = null;
     let dragStart = { x: 0, y: 0 };
-    const handleSize = 14;
+    const handleSize = 16;
 
     function updateCanvasZoom() {
       canvas.style.transform = `scale(${currentZoom})`;
@@ -572,18 +543,27 @@
       if (undoStack.length > 0) {
         ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
       }
-      if (uploadedImgObj) {
-        ctx.drawImage(uploadedImgObj, imgTransform.x, imgTransform.y, imgTransform.w, imgTransform.h);
-        drawImgHandles();
+      if (activeObj) {
+        if (activeObj.type === 'img') {
+          ctx.drawImage(activeObj.img, activeObj.x, activeObj.y, activeObj.w, activeObj.h);
+        } else if (activeObj.type === 'emoji') {
+          ctx.font = `${activeObj.h}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(activeObj.emoji, activeObj.x + activeObj.w / 2, activeObj.y + activeObj.h / 2);
+        }
+        drawObjHandles();
       }
     }
 
-    function drawImgHandles() {
+    function drawObjHandles() {
+      if (!activeObj) return;
+
       ctx.save();
       ctx.strokeStyle = '#7a5af8';
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 4]);
-      ctx.strokeRect(imgTransform.x, imgTransform.y, imgTransform.w, imgTransform.h);
+      ctx.strokeRect(activeObj.x, activeObj.y, activeObj.w, activeObj.h);
       ctx.restore();
 
       ctx.fillStyle = '#ffffff';
@@ -599,7 +579,8 @@
     }
 
     function getHandles() {
-      const { x, y, w, h } = imgTransform;
+      if (!activeObj) return {};
+      const { x, y, w, h } = activeObj;
       return {
         tl: { x: x, y: y },
         tr: { x: x + w, y: y },
@@ -612,11 +593,19 @@
       };
     }
 
+    // تثبيت الكائن على اللوحة بدقة
     document.getElementById('btnLockImage').onclick = () => {
-      if (uploadedImgObj) {
+      if (activeObj) {
         ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
-        ctx.drawImage(uploadedImgObj, imgTransform.x, imgTransform.y, imgTransform.w, imgTransform.h);
-        uploadedImgObj = null;
+        if (activeObj.type === 'img') {
+          ctx.drawImage(activeObj.img, activeObj.x, activeObj.y, activeObj.w, activeObj.h);
+        } else if (activeObj.type === 'emoji') {
+          ctx.font = `${activeObj.h}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(activeObj.emoji, activeObj.x + activeObj.w / 2, activeObj.y + activeObj.h / 2);
+        }
+        activeObj = null;
         document.getElementById('btnLockImage').style.display = 'none';
         canvas.style.cursor = 'crosshair';
         saveState();
@@ -626,14 +615,14 @@
     document.getElementById('btnUndo').onclick = () => {
       if (undoStack.length > 1) {
         undoStack.pop();
-        uploadedImgObj = null;
+        activeObj = null;
         document.getElementById('btnLockImage').style.display = 'none';
         ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
       }
     };
 
     document.getElementById('btnClear').onclick = () => {
-      uploadedImgObj = null;
+      activeObj = null;
       document.getElementById('btnLockImage').style.display = 'none';
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -647,6 +636,7 @@
       link.click();
     };
 
+    // رفع صورة
     document.getElementById('imageLoader').onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -656,13 +646,13 @@
         const img = new Image();
         img.onload = () => {
           originalImage = img;
-          uploadedImgObj = img;
-
           let aspect = img.naturalWidth / img.naturalHeight;
           let defaultW = Math.min(canvas.width * 0.7, img.naturalWidth);
           let defaultH = defaultW / aspect;
 
-          imgTransform = {
+          activeObj = {
+            type: 'img',
+            img: img,
             x: (canvas.width - defaultW) / 2,
             y: (canvas.height - defaultH) / 2,
             w: defaultW,
@@ -680,7 +670,7 @@
       reader.readAsDataURL(file);
     };
 
-    // تفريغ الألوان وتوفير التكبير والتصغير والتحريك
+    // تفريغ الألوان
     document.getElementById('btnOutline').onclick = () => {
       if (!originalImage) {
         alert('يرجى رفع صورة أولاً!');
@@ -742,13 +732,13 @@
 
       const outlinedImg = new Image();
       outlinedImg.onload = () => {
-        uploadedImgObj = outlinedImg;
-
         let aspect = tempCanvas.width / tempCanvas.height;
         let defaultW = Math.min(canvas.width * 0.75, tempCanvas.width);
         let defaultH = defaultW / aspect;
 
-        imgTransform = {
+        activeObj = {
+          type: 'img',
+          img: outlinedImg,
           x: (canvas.width - defaultW) / 2,
           y: (canvas.height - defaultH) / 2,
           w: defaultW,
@@ -760,6 +750,28 @@
       };
       outlinedImg.src = tempCanvas.toDataURL();
     };
+
+    // اختيار الملصق وإظهاره ككائن قابل للتكبير والتحريك
+    document.querySelectorAll('.emoji-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.emoji-btn').forEach(e => e.classList.remove('active'));
+        btn.classList.add('active');
+        selectedEmoji = btn.dataset.emoji;
+
+        activeObj = {
+          type: 'emoji',
+          emoji: selectedEmoji,
+          x: canvas.width / 2 - 50,
+          y: canvas.height / 2 - 50,
+          w: 100,
+          h: 100
+        };
+
+        document.getElementById('btnLockImage').style.display = 'inline-flex';
+        redrawCanvas();
+      };
+    });
 
     document.querySelectorAll('.tool-btn').forEach(btn => {
       btn.onclick = () => {
@@ -801,23 +813,6 @@
       });
     };
 
-    document.getElementById('stickerSizeSlider').oninput = (e) => {
-      stickerSize = parseInt(e.target.value);
-      document.getElementById('stickerSizeText').innerText = `${stickerSize}px`;
-      document.getElementById('stickerPreview').style.fontSize = `${Math.min(stickerSize, 40)}px`;
-    };
-
-    document.querySelectorAll('.emoji-btn').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.emoji-btn').forEach(e => e.classList.remove('active'));
-        btn.classList.add('active');
-        selectedEmoji = btn.dataset.emoji;
-        document.getElementById('stickerPreview').innerText = selectedEmoji;
-        currentTool = 'emoji';
-      };
-    });
-
     function getPos(e) {
       const rect = canvas.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -857,12 +852,12 @@
     function startAction(e) {
       const pos = getPos(e);
 
-      if (uploadedImgObj) {
+      if (activeObj) {
         const handles = getHandles();
         for (let key in handles) {
           const h = handles[key];
           if (Math.hypot(pos.x - h.x, pos.y - h.y) <= handleSize * 1.5) {
-            isResizingImg = true;
+            isResizingObj = true;
             resizeHandle = key;
             dragStart = pos;
             return;
@@ -870,13 +865,13 @@
         }
 
         if (
-          pos.x >= imgTransform.x &&
-          pos.x <= imgTransform.x + imgTransform.w &&
-          pos.y >= imgTransform.y &&
-          pos.y <= imgTransform.y + imgTransform.h
+          pos.x >= activeObj.x &&
+          pos.x <= activeObj.x + activeObj.w &&
+          pos.y >= activeObj.y &&
+          pos.y <= activeObj.y + activeObj.h
         ) {
-          isDraggingImg = true;
-          dragStart = { x: pos.x - imgTransform.x, y: pos.y - imgTransform.y };
+          isDraggingObj = true;
+          dragStart = { x: pos.x - activeObj.x, y: pos.y - activeObj.y };
           canvas.style.cursor = 'move';
           return;
         }
@@ -891,13 +886,6 @@
         floodFill(Math.round(startX), Math.round(startY), currentColor);
         saveState();
         isDrawing = false;
-      } else if (currentTool === 'emoji') {
-        ctx.font = `${stickerSize}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(selectedEmoji, startX, startY);
-        saveState();
-        isDrawing = false;
       } else {
         ctx.beginPath();
         ctx.moveTo(startX, startY);
@@ -907,7 +895,7 @@
     function moveAction(e) {
       const pos = getPos(e);
 
-      if (uploadedImgObj) {
+      if (activeObj) {
         let hoveringHandle = false;
         const handles = getHandles();
         for (let key in handles) {
@@ -921,10 +909,10 @@
         if (hoveringHandle) {
           canvas.style.cursor = 'pointer';
         } else if (
-          pos.x >= imgTransform.x &&
-          pos.x <= imgTransform.x + imgTransform.w &&
-          pos.y >= imgTransform.y &&
-          pos.y <= imgTransform.y + imgTransform.h
+          pos.x >= activeObj.x &&
+          pos.x <= activeObj.x + activeObj.w &&
+          pos.y >= activeObj.y &&
+          pos.y <= activeObj.y + activeObj.h
         ) {
           canvas.style.cursor = 'move';
         } else {
@@ -932,26 +920,26 @@
         }
       }
 
-      if (isResizingImg) {
+      if (isResizingObj) {
         const dx = pos.x - dragStart.x;
         const dy = pos.y - dragStart.y;
         dragStart = pos;
 
-        if (resizeHandle.includes('r')) imgTransform.w += dx;
-        if (resizeHandle.includes('l')) { imgTransform.x += dx; imgTransform.w -= dx; }
-        if (resizeHandle.includes('b')) imgTransform.h += dy;
-        if (resizeHandle.includes('t')) { imgTransform.y += dy; imgTransform.h -= dy; }
+        if (resizeHandle.includes('r')) activeObj.w += dx;
+        if (resizeHandle.includes('l')) { activeObj.x += dx; activeObj.w -= dx; }
+        if (resizeHandle.includes('b')) activeObj.h += dy;
+        if (resizeHandle.includes('t')) { activeObj.y += dy; activeObj.h -= dy; }
 
-        if (imgTransform.w < 30) imgTransform.w = 30;
-        if (imgTransform.h < 30) imgTransform.h = 30;
+        if (activeObj.w < 20) activeObj.w = 20;
+        if (activeObj.h < 20) activeObj.h = 20;
 
         redrawCanvas();
         return;
       }
 
-      if (isDraggingImg) {
-        imgTransform.x = pos.x - dragStart.x;
-        imgTransform.y = pos.y - dragStart.y;
+      if (isDraggingObj) {
+        activeObj.x = pos.x - dragStart.x;
+        activeObj.y = pos.y - dragStart.y;
         redrawCanvas();
         return;
       }
@@ -1004,9 +992,9 @@
     }
 
     function endAction() {
-      if (isResizingImg || isDraggingImg) {
-        isResizingImg = false;
-        isDraggingImg = false;
+      if (isResizingObj || isDraggingObj) {
+        isResizingObj = false;
+        isDraggingObj = false;
         return;
       }
 
