@@ -35,43 +35,59 @@
             background: linear-gradient(135deg, #818cf8, #c084fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-align: center;
         }
 
-        .toolbar {
+        /* تخطيط الصفحة: القائمة على اليسار ومساحة العمل بجانبها */
+        .main-layout {
+            display: flex;
+            gap: 25px;
+            width: 100%;
+            max-width: 1400px;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        /* القائمة الجانبية على اليسار */
+        .sidebar {
             background-color: var(--bg-secondary);
             border: 1px solid var(--border);
-            padding: 12px 20px;
-            border-radius: 14px;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            width: 300px;
             display: flex;
+            flex-direction: column;
             gap: 15px;
-            align-items: center;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            justify-content: center;
         }
 
         .tool-group {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            gap: 6px;
             background-color: var(--panel);
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 10px;
             border: 1px solid var(--border);
+        }
+
+        .tool-group span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         label.upload-btn {
             background: linear-gradient(135deg, #6366f1, #818cf8);
             color: white;
-            padding: 8px 14px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
+            text-align: center;
             transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            display: block;
         }
         label.upload-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
@@ -79,24 +95,25 @@
             background: var(--bg-primary);
             color: var(--text-main);
             border: 1px solid var(--border);
-            padding: 6px 10px;
-            border-radius: 6px;
+            padding: 8px;
+            border-radius: 8px;
             outline: none;
             cursor: pointer;
+            width: 100%;
         }
 
         /* صندوق الملصقات التفاعلية */
         .sticker-box {
             display: flex;
-            gap: 8px;
+            gap: 10px;
+            justify-content: space-around;
             background-color: var(--panel);
-            padding: 5px 10px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 10px;
             border: 1px solid var(--border);
-            align-items: center;
         }
         .sticker-btn {
-            font-size: 20px;
+            font-size: 24px;
             cursor: pointer;
             background: none;
             border: none;
@@ -106,62 +123,59 @@
 
         .color-palette {
             display: flex;
-            gap: 6px;
-            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
             background-color: var(--panel);
-            padding: 6px 10px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 10px;
             border: 1px solid var(--border);
         }
 
         .color-circle {
-            width: 26px;
-            height: 26px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.2);
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
+            transition: transform 0.2s;
         }
-        .color-circle:hover { transform: scale(1.15); border-color: #fff; }
-        .color-circle.active { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 8px rgba(255,255,255,0.6); }
+        .color-circle:hover { transform: scale(1.2); }
+        .color-circle.active { border-color: #fff; transform: scale(1.15); box-shadow: 0 0 8px rgba(255,255,255,0.6); }
 
         .btn {
-            padding: 8px 14px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 10px;
             border: none;
             cursor: pointer;
             font-weight: 600;
             color: white;
             transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+            text-align: center;
         }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-undo { background-color: #d97706; }
         .btn-clear-colors { background-color: #0d9488; }
         .btn-clear-all { background-color: #dc2626; }
 
+        /* منطقة اللوحات على اليمين */
         .workspace {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
             align-items: flex-start;
-            width: 100%;
-            max-width: 1400px;
         }
 
         .canvas-card {
             background-color: var(--bg-secondary);
             border: 1px solid var(--border);
             padding: 15px;
-            border-radius: 14px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
         }
 
         .canvas-card h3 {
@@ -173,8 +187,8 @@
         .canvas-container {
             position: relative;
             background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             overflow: hidden;
         }
 
@@ -183,7 +197,7 @@
             cursor: crosshair;
         }
 
-        /* عناصر الملصقات القابلة للتحريك والتكبير */
+        /* الملصقات القابلة للتحريك والتكبير */
         .draggable-sticker {
             position: absolute;
             font-size: 35px;
@@ -200,54 +214,62 @@
 
     <h1>🎨 استوديو الرسم والتلوين التفاعلي</h1>
 
-    <div class="toolbar">
-        <label class="upload-btn">
-            📂 رفع صورة
-            <input type="file" id="uploadInput" accept="image/*" style="display: none;">
-        </label>
+    <div class="main-layout">
+        <!-- القائمة الجانبية على اليسار -->
+        <div class="sidebar">
+            <label class="upload-btn">
+                📂 رفع صورة جديدة
+                <input type="file" id="uploadInput" accept="image/*" style="display: none;">
+            </label>
 
-        <div class="tool-group">
-            <span>الأداة:</span>
-            <select id="toolSelect">
-                <option value="brush">🖌️ فرشاة</option>
-                <option value="pencil">✏️ قلم دقيق</option>
-                <option value="eraser">🧹 ممحاة</option>
-            </select>
-        </div>
-
-        <div class="tool-group">
-            <span>الحجم:</span>
-            <input type="range" id="brushSize" min="1" max="30" value="5">
-        </div>
-
-        <!-- الملصقات التفاعلية القابلة للتحريك -->
-        <div class="sticker-box">
-            <span style="font-size: 12px; color: var(--text-muted);">ملصقات:</span>
-            <button class="sticker-btn" onclick="spawnSticker('⭐')">⭐</button>
-            <button class="sticker-btn" onclick="spawnSticker('💖')">💖</button>
-            <button class="sticker-btn" onclick="spawnSticker('🎨')">🎨</button>
-            <button class="sticker-btn" onclick="spawnSticker('👑')">👑</button>
-        </div>
-
-        <div class="color-palette" id="colorPalette"></div>
-
-        <button class="btn btn-undo" onclick="undoAction()">↩️ تراجع</button>
-        <button class="btn btn-clear-colors" onclick="clearColorsOnly()">🧼 تفريغ الألوان</button>
-        <button class="btn btn-clear-all" onclick="clearAll()">🔄 مسح الكل</button>
-    </div>
-
-    <div class="workspace">
-        <div class="canvas-card">
-            <h3>المرجع (الصورة الأصلية)</h3>
-            <div class="canvas-container">
-                <canvas id="refCanvas" width="300" height="225"></canvas>
+            <div class="tool-group">
+                <span>أداة الرسم:</span>
+                <select id="toolSelect">
+                    <option value="brush">🖌️ فرشاة</option>
+                    <option value="pencil">✏️ قلم دقيق</option>
+                    <option value="eraser">🧹 ممحاة</option>
+                </select>
             </div>
+
+            <div class="tool-group">
+                <span>حجم الفرشاة:</span>
+                <input type="range" id="brushSize" min="1" max="30" value="5">
+            </div>
+
+            <div class="tool-group">
+                <span>الملصقات (انقر للإضافة):</span>
+                <div class="sticker-box">
+                    <button class="sticker-btn" onclick="spawnSticker('⭐')">⭐</button>
+                    <button class="sticker-btn" onclick="spawnSticker('💖')">💖</button>
+                    <button class="sticker-btn" onclick="spawnSticker('🎨')">🎨</button>
+                    <button class="sticker-btn" onclick="spawnSticker('👑')">👑</button>
+                </div>
+            </div>
+
+            <div class="tool-group">
+                <span>لوحة الألوان:</span>
+                <div class="color-palette" id="colorPalette"></div>
+            </div>
+
+            <button class="btn btn-undo" onclick="undoAction()">↩️ تراجع عن الخطوة</button>
+            <button class="btn btn-clear-colors" onclick="clearColorsOnly()">🧼 تفريغ الألوان</button>
+            <button class="btn btn-clear-all" onclick="clearAll()">🔄 مسح اللوحة بالكامل</button>
         </div>
 
-        <div class="canvas-card">
-            <h3>لوحة التلوين (اسحب الملصقات أو ارسم بحرية)</h3>
-            <div class="canvas-container" id="mainContainer">
-                <canvas id="mainCanvas" width="850" height="600"></canvas>
+        <!-- مساحة اللوحات على اليمين -->
+        <div class="workspace">
+            <div class="canvas-card">
+                <h3>المرجع (الصورة الأصلية)</h3>
+                <div class="canvas-container">
+                    <canvas id="refCanvas" width="280" height="210"></canvas>
+                </div>
+            </div>
+
+            <div class="canvas-card">
+                <h3>لوحة التلوين والرسام</h3>
+                <div class="canvas-container" id="mainContainer">
+                    <canvas id="mainCanvas" width="750" height="550"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -264,7 +286,6 @@
         let originalImageObj = null;
         let undoStack = [];
 
-        // لوحة الألوان
         const colors = ['#000000', '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899', '#ffffff'];
         const paletteContainer = document.getElementById('colorPalette');
 
@@ -294,7 +315,6 @@
             }
         }
 
-        // إضافة ملصق قابل للتحريك والتكبير عند التمرير
         function spawnSticker(emoji) {
             const sticker = document.createElement('div');
             sticker.className = 'draggable-sticker';
@@ -323,7 +343,6 @@
 
             document.onmouseup = () => { isDragging = false; };
 
-            // تكبير وتصغير الملصق عبر عجلة الماوس
             sticker.onwheel = (e) => {
                 e.preventDefault();
                 let currentSize = parseFloat(window.getComputedStyle(sticker).fontSize);
@@ -334,7 +353,6 @@
                 }
             };
 
-            // النقر المزدوج لحذف الملصق
             sticker.ondblclick = () => { sticker.remove(); };
 
             mainContainer.appendChild(sticker);
@@ -377,7 +395,6 @@
                 refCtx.clearRect(0, 0, refCanvas.width, refCanvas.height);
                 originalImageObj = null;
                 undoStack = [];
-                // إزالة الملصقات الموجودة أيضاً
                 document.querySelectorAll('.draggable-sticker').forEach(el => el.remove());
             }
         }
