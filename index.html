@@ -2,175 +2,419 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>استوديو الرسم والتلوين الاحترافي</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استوديو الرسم والتلوين التفاعلي</title>
     <style>
-        :root { --bg: #1e1e26; --panel: #2d2d3a; --accent: #6366f1; --text: #ffffff; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
-        
-        .toolbar { background: var(--panel); padding: 15px 25px; border-radius: 12px; display: flex; gap: 15px; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
-        
-        .canvas-area { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
-        .canvas-card { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        
-        canvas { background: white; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); cursor: crosshair; }
-        
-        button, select, input[type="range"] { padding: 8px 15px; border-radius: 6px; border: none; cursor: pointer; background: #3f3f46; color: white; font-weight: bold; }
-        button:hover { background: var(--accent); }
-        
-        .color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: transform 0.2s; }
-        .color-btn:hover { transform: scale(1.2); }
-        
-        .btn-action { background: #4f46e5; }
-        .btn-clear { background: #ef4444; }
-        .btn-undo { background: #f59e0b; }
+        :root {
+            --bg-primary: #121216;
+            --bg-secondary: #1a1a22;
+            --panel: #242430;
+            --accent: #6366f1;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #333342;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .toolbar {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            border-radius: 14px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--panel);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        label.upload-btn {
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        label.upload-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        select, input[type="range"] {
+            background: var(--bg-primary);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 6px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* صندوق الملصقات التفاعلية */
+        .sticker-box {
+            display: flex;
+            gap: 8px;
+            background-color: var(--panel);
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            align-items: center;
+        }
+        .sticker-btn {
+            font-size: 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: transform 0.2s;
+        }
+        .sticker-btn:hover { transform: scale(1.3); }
+
+        .color-palette {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            background-color: var(--panel);
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .color-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .color-circle:hover { transform: scale(1.15); border-color: #fff; }
+        .color-circle.active { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 8px rgba(255,255,255,0.6); }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-undo { background-color: #d97706; }
+        .btn-clear-colors { background-color: #0d9488; }
+        .btn-clear-all { background-color: #dc2626; }
+
+        .workspace {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .canvas-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .canvas-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .canvas-container {
+            position: relative;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        /* عناصر الملصقات القابلة للتحريك والتكبير */
+        .draggable-sticker {
+            position: absolute;
+            font-size: 35px;
+            cursor: grab;
+            user-select: none;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+        .draggable-sticker:active { cursor: grabbing; }
     </style>
 </head>
 <body>
 
-<div class="toolbar">
-    <label style="background:var(--accent); padding:8px 15px; border-radius:6px; cursor:pointer;">
-        رفع صورة جديدة 🖼️<input type="file" id="upload" accept="image/*" style="display:none;">
-    </label>
-    
-    <select id="tool">
-        <option value="brush">🖌️ فرشاة</option>
-        <option value="pencil">✏️ قلم</option>
-        <option value="eraser">🧹 ممحاة</option>
-    </select>
+    <h1>🎨 استوديو الرسم والتلوين التفاعلي</h1>
 
-    <div style="display: flex; align-items: center; gap: 5px;">
-        <span>الحجم:</span>
-        <input type="range" id="size" min="1" max="40" value="5">
+    <div class="toolbar">
+        <label class="upload-btn">
+            📂 رفع صورة
+            <input type="file" id="uploadInput" accept="image/*" style="display: none;">
+        </label>
+
+        <div class="tool-group">
+            <span>الأداة:</span>
+            <select id="toolSelect">
+                <option value="brush">🖌️ فرشاة</option>
+                <option value="pencil">✏️ قلم دقيق</option>
+                <option value="eraser">🧹 ممحاة</option>
+            </select>
+        </div>
+
+        <div class="tool-group">
+            <span>الحجم:</span>
+            <input type="range" id="brushSize" min="1" max="30" value="5">
+        </div>
+
+        <!-- الملصقات التفاعلية القابلة للتحريك -->
+        <div class="sticker-box">
+            <span style="font-size: 12px; color: var(--text-muted);">ملصقات:</span>
+            <button class="sticker-btn" onclick="spawnSticker('⭐')">⭐</button>
+            <button class="sticker-btn" onclick="spawnSticker('💖')">💖</button>
+            <button class="sticker-btn" onclick="spawnSticker('🎨')">🎨</button>
+            <button class="sticker-btn" onclick="spawnSticker('👑')">👑</button>
+        </div>
+
+        <div class="color-palette" id="colorPalette"></div>
+
+        <button class="btn btn-undo" onclick="undoAction()">↩️ تراجع</button>
+        <button class="btn btn-clear-colors" onclick="clearColorsOnly()">🧼 تفريغ الألوان</button>
+        <button class="btn btn-clear-all" onclick="clearAll()">🔄 مسح الكل</button>
     </div>
 
-    <div id="palette" style="display:flex; gap:8px;"></div>
+    <div class="workspace">
+        <div class="canvas-card">
+            <h3>المرجع (الصورة الأصلية)</h3>
+            <div class="canvas-container">
+                <canvas id="refCanvas" width="300" height="225"></canvas>
+            </div>
+        </div>
 
-    <button class="btn-undo" onclick="undoAction()">↩️ تراجع</button>
-    <button class="btn-action" onclick="clearColorsOnly()">🧼 تفريغ الألوان</button>
-    <button class="btn-clear" onclick="clearAll()">🔄 مسح الكل</button>
-</div>
-
-<div class="canvas-area">
-    <div class="canvas-card">
-        <p>المرجع الملون:</p>
-        <canvas id="ref" width="350" height="260"></canvas>
+        <div class="canvas-card">
+            <h3>لوحة التلوين (اسحب الملصقات أو ارسم بحرية)</h3>
+            <div class="canvas-container" id="mainContainer">
+                <canvas id="mainCanvas" width="850" height="600"></canvas>
+            </div>
+        </div>
     </div>
-    <div class="canvas-card">
-        <p>لوحة الرسم والتلوين (مساحة واسعة):</p>
-        <canvas id="main" width="900" height="650"></canvas>
-    </div>
-</div>
 
-<script>
-    const refCanvas = document.getElementById('ref');
-    const refCtx = refCanvas.getContext('2d');
-    const mainCanvas = document.getElementById('main');
-    const ctx = mainCanvas.getContext('2d');
-    
-    let color = '#000000';
-    let drawing = false;
-    let originalImageObj = null;
-    let undoStack = [];
+    <script>
+        const refCanvas = document.getElementById('refCanvas');
+        const refCtx = refCanvas.getContext('2d');
+        const mainCanvas = document.getElementById('mainCanvas');
+        const ctx = mainCanvas.getContext('2d');
+        const mainContainer = document.getElementById('mainContainer');
 
-    // لوحة الألوان
-    ['#000', '#f43f5e', '#22c55e', '#3b82f6', '#eab308', '#d946ef', '#06b6d4', '#f97316', '#ffffff'].forEach(c => {
-        let b = document.createElement('div');
-        b.className = 'color-btn'; 
-        b.style.background = c;
-        b.onclick = () => color = c;
-        document.getElementById('palette').appendChild(b);
-    });
+        let currentColor = '#000000';
+        let drawing = false;
+        let originalImageObj = null;
+        let undoStack = [];
 
-    function saveState() {
-        undoStack.push(ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height));
-        if (undoStack.length > 20) undoStack.shift();
-    }
+        // لوحة الألوان
+        const colors = ['#000000', '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899', '#ffffff'];
+        const paletteContainer = document.getElementById('colorPalette');
 
-    function undoAction() {
-        if (undoStack.length > 1) {
-            undoStack.pop();
-            let prevState = undoStack[undoStack.length - 1];
-            ctx.putImageData(prevState, 0, 0);
-        } else {
-            alert("لا توجد خطوات إضافية للتراجع عنها!");
-        }
-    }
-
-    document.getElementById('upload').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const img = new Image();
-            img.onload = () => {
-                refCtx.clearRect(0, 0, refCanvas.width, refCanvas.height);
-                ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-                
-                refCtx.drawImage(img, 0, 0, refCanvas.width, refCanvas.height);
-                ctx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
-                
-                originalImageObj = img;
-                undoStack = [];
-                saveState();
+        colors.forEach((c, index) => {
+            const circle = document.createElement('div');
+            circle.className = 'color-circle' + (index === 0 ? ' active' : '');
+            circle.style.backgroundColor = c;
+            circle.onclick = () => {
+                document.querySelectorAll('.color-circle').forEach(el => el.classList.remove('active'));
+                circle.classList.add('active');
+                currentColor = c;
             };
-            img.src = ev.target.result;
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
+            paletteContainer.appendChild(circle);
+        });
 
-    function clearColorsOnly() {
-        if (!originalImageObj) {
-            alert("الرجاء رفع صورة أولاً!");
-            return;
+        function saveState() {
+            undoStack.push(ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height));
+            if (undoStack.length > 30) undoStack.shift();
         }
-        ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-        ctx.drawImage(originalImageObj, 0, 0, mainCanvas.width, mainCanvas.height);
-        saveState();
-    }
 
-    function clearAll() {
-        if (confirm("هل تريد مسح اللوحة بالكامل؟")) {
+        function undoAction() {
+            if (undoStack.length > 1) {
+                undoStack.pop();
+                ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
+            } else {
+                alert("لا توجد خطوات تراجع سابقة!");
+            }
+        }
+
+        // إضافة ملصق قابل للتحريك والتكبير عند التمرير
+        function spawnSticker(emoji) {
+            const sticker = document.createElement('div');
+            sticker.className = 'draggable-sticker';
+            sticker.innerText = emoji;
+            sticker.style.left = '50%';
+            sticker.style.top = '50%';
+
+            let isDragging = false;
+
+            sticker.onmousedown = (e) => {
+                isDragging = true;
+                e.stopPropagation();
+            };
+
+            document.onmousemove = (e) => {
+                if (!isDragging) return;
+                const rect = mainContainer.getBoundingClientRect();
+                let x = e.clientX - rect.left;
+                let y = e.clientY - rect.top;
+                
+                if(x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                    sticker.style.left = x + 'px';
+                    sticker.style.top = y + 'px';
+                }
+            };
+
+            document.onmouseup = () => { isDragging = false; };
+
+            // تكبير وتصغير الملصق عبر عجلة الماوس
+            sticker.onwheel = (e) => {
+                e.preventDefault();
+                let currentSize = parseFloat(window.getComputedStyle(sticker).fontSize);
+                if (e.deltaY < 0) {
+                    sticker.style.fontSize = (currentSize + 4) + 'px';
+                } else {
+                    if (currentSize > 15) sticker.style.fontSize = (currentSize - 4) + 'px';
+                }
+            };
+
+            // النقر المزدوج لحذف الملصق
+            sticker.ondblclick = () => { sticker.remove(); };
+
+            mainContainer.appendChild(sticker);
+        }
+
+        document.getElementById('uploadInput').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    refCtx.clearRect(0, 0, refCanvas.width, refCanvas.height);
+                    ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+                    refCtx.drawImage(img, 0, 0, refCanvas.width, refCanvas.height);
+                    ctx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
+
+                    originalImageObj = img;
+                    undoStack = [];
+                    saveState();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        };
+
+        function clearColorsOnly() {
+            if (!originalImageObj) {
+                alert("الرجاء رفع صورة أولاً!");
+                return;
+            }
+            saveState();
             ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-            refCtx.clearRect(0, 0, refCanvas.width, refCanvas.height);
-            originalImageObj = null;
-            undoStack = [];
+            ctx.drawImage(originalImageObj, 0, 0, mainCanvas.width, mainCanvas.height);
+            saveState();
         }
-    }
 
-    mainCanvas.onmousedown = (e) => {
-        const {x, y} = getPos(e);
-        saveState();
-        drawing = true;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-    };
+        function clearAll() {
+            if (confirm("هل أنت متأكد من مسح اللوحة بالكامل؟")) {
+                ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+                refCtx.clearRect(0, 0, refCanvas.width, refCanvas.height);
+                originalImageObj = null;
+                undoStack = [];
+                // إزالة الملصقات الموجودة أيضاً
+                document.querySelectorAll('.draggable-sticker').forEach(el => el.remove());
+            }
+        }
 
-    mainCanvas.onmousemove = (e) => {
-        if (!drawing) return;
-        const {x, y} = getPos(e);
-        const tool = document.getElementById('tool').value;
-        
-        ctx.lineWidth = document.getElementById('size').value;
-        ctx.strokeStyle = (tool === 'eraser') ? '#ffffff' : color;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        
-        ctx.lineTo(x, y);
-        ctx.stroke();
-    };
-
-    mainCanvas.onmouseup = () => { 
-        if (drawing) {
-            drawing = false; 
+        mainCanvas.onmousedown = (e) => {
+            saveState();
+            drawing = true;
+            const rect = mainCanvas.getBoundingClientRect();
             ctx.beginPath();
-        }
-    };
-
-    function getPos(e) {
-        const rect = mainCanvas.getBoundingClientRect();
-        return { 
-            x: e.clientX - rect.left, 
-            y: e.clientY - rect.top 
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
         };
-    }
-</script>
+
+        mainCanvas.onmousemove = (e) => {
+            if (!drawing) return;
+            const rect = mainCanvas.getBoundingClientRect();
+            const tool = document.getElementById('toolSelect').value;
+            const size = document.getElementById('brushSize').value;
+
+            ctx.lineWidth = size;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if (tool === 'eraser') {
+                ctx.strokeStyle = '#ffffff';
+            } else if (tool === 'pencil') {
+                ctx.lineWidth = Math.min(size, 3);
+                ctx.strokeStyle = currentColor;
+            } else {
+                ctx.strokeStyle = currentColor;
+            }
+
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        };
+
+        mainCanvas.onmouseup = () => { drawing = false; ctx.beginPath(); };
+        mainCanvas.onmouseleave = () => { drawing = false; ctx.beginPath(); };
+    </script>
 </body>
 </html>
