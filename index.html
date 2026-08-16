@@ -1,43 +1,114 @@
-function convertToColoringBook() {
-            if (!originalImageObj) {
-                alert("الرجاء رفع صورة ملونة أولاً!");
-                return;
-            }
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>استوديو الرسام للتلوين</title>
+    <style>
+        body { background: #dcdcdc; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; }
+        .toolbar { background: #f0f0f0; border: 1px solid #808080; padding: 10px; display: flex; gap: 15px; margin-bottom: 10px; border-radius: 5px; flex-wrap: wrap; align-items: center; box-shadow: 2px 2px 5px #ccc; }
+        .canvas-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+        .canvas-box { border: 2px solid #808080; background: white; position: relative; }
+        canvas { cursor: crosshair; display: block; }
+        .pallete { display: grid; grid-template-columns: repeat(5, 25px); gap: 3px; }
+        .color-swatch { width: 25px; height: 25px; border: 1px solid #000; cursor: pointer; }
+        button { cursor: pointer; padding: 5px 10px; }
+        .active-color { outline: 2px solid #000; outline-offset: 2px; }
+    </style>
+</head>
+<body>
 
-            loadingOverlay.style.display = 'flex';
-            
-            // نستخدم Canvas مؤقت للمعالجة
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = canvas.height;
-            const tCtx = tempCanvas.getContext('2d');
+    <div class="toolbar">
+        <strong>رفع صورة:</strong> <input type="file" id="imgUpload" accept="image/*">
+        <strong>حجم الفرشاة:</strong> <input type="range" id="size" min="1" max="30" value="5">
+        <strong>الألوان:</strong> <div class="pallete" id="pallete"></div>
+        <button onclick="setMode('brush')">فرشاة</button>
+        <button onclick="setMode('eraser')">ممحاة</button>
+        <button onclick="clearCanvas()">مسح الرسم</button>
+        <button onclick="saveArtwork()" style="background: #4caf50; color: white;">حفظ اللوحة</button>
+    </div>
 
-            // 1. تنظيف وتنعيم الصورة (Blur) لإزالة الضجيج غير المرغوب فيه
-            tCtx.filter = 'blur(1.5px) grayscale(100%) brightness(110%)';
-            tCtx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
+    <div class="canvas-container">
+        <div style="text-align: center;">
+            <p>مرجع الصورة (ملون):</p>
+            <div class="canvas-box"><canvas id="refCanvas" width="400" height="300"></canvas></div>
+        </div>
+        <div style="text-align: center;">
+            <p>لوحة الرسم (تلوين):</p>
+            <div class="canvas-box"><canvas id="mainCanvas" width="400" height="300"></canvas></div>
+        </div>
+    </div>
 
-            // 2. تطبيق تأثير التباين العالي (High Contrast) لإظهار الخطوط الرئيسية فقط
-            tCtx.filter = 'contrast(200%)';
-            tCtx.drawImage(tempCanvas, 0, 0);
+    <script>
+        const refCanvas = document.getElementById('refCanvas');
+        const mainCanvas = document.getElementById('mainCanvas');
+        const rc = refCanvas.getContext('2d');
+        const mc = mainCanvas.getContext('2d');
+        const pallete = document.getElementById('pallete');
+        
+        let currentColor = '#000000';
+        let currentMode = 'brush'; // brush or eraser
 
-            // 3. تحويل الألوان بحيث تصبح الخلفية بيضاء والخطوط سوداء واضحة
-            const imgData = tCtx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imgData.data;
-            for (let i = 0; i < data.length; i += 4) {
-                // حد العتبة (Threshold) لجعل الخطوط حادة جداً
-                let v = data[i] > 180 ? 255 : 0; 
-                data[i] = data[i + 1] = data[i + 2] = v;
-            }
-            tCtx.putImageData(imgData, 0, 0);
+        // إنشاء لوحة الألوان
+        const colors = ['#000', '#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff', '#ffa500', '#800080', '#A52A2A', '#FFC0CB', '#808080', '#fff'];
+        colors.forEach(c => {
+            let div = document.createElement('div');
+            div.className = 'color-swatch';
+            div.style.background = c;
+            div.onclick = () => { currentColor = c; currentMode = 'brush'; };
+            pallete.appendChild(div);
+        });
 
-            // عرض النتيجة
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(tempCanvas, 0, 0);
-            
-            currentModeObj = new Image();
-            currentModeObj.src = tempCanvas.toDataURL();
-            
-            saveState();
-            loadingOverlay.style.display = 'none';
+        // رفع الصورة للمرجع
+        document.getElementById('imgUpload').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    rc.drawImage(img, 0, 0, 400, 300);
+                    createSketch(img);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        };
+
+        function createSketch(img) {
+            mc.filter = 'grayscale(100%) contrast(200%) brightness(120%)';
+            mc.drawImage(img, 0, 0, 400, 300);
+            mc.filter = 'none';
         }
+
+        function setMode(mode) { currentMode = mode; }
+
+        // أدوات الرسم
+        let drawing = false;
+        mainCanvas.onmousedown = () => drawing = true;
+        mainCanvas.onmouseup = () => { drawing = false; mc.beginPath(); };
+        mainCanvas.onmousemove = (e) => {
+            if(!drawing) return;
+            const rect = mainCanvas.getBoundingClientRect();
+            mc.lineWidth = document.getElementById('size').value;
+            mc.strokeStyle = (currentMode === 'eraser') ? '#fff' : currentColor;
+            mc.lineCap = 'round';
+            mc.lineJoin = 'round';
+            mc.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            mc.stroke();
+            mc.beginPath();
+            mc.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        };
+
+        function clearCanvas() { 
+            if(confirm("هل أنت متأكد من مسح الرسم؟")) {
+                mc.clearRect(0,0,400,300);
+            }
+        }
+
+        function saveArtwork() { 
+            const link = document.createElement('a');
+            link.download = 'لوحتي.png';
+            link.href = mainCanvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>
