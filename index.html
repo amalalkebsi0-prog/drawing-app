@@ -2,113 +2,85 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>استوديو الرسام للتلوين</title>
+    <title>استوديو الرسم والتلوين</title>
     <style>
-        body { background: #dcdcdc; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 10px; }
-        .toolbar { background: #f0f0f0; border: 1px solid #808080; padding: 10px; display: flex; gap: 15px; margin-bottom: 10px; border-radius: 5px; flex-wrap: wrap; align-items: center; box-shadow: 2px 2px 5px #ccc; }
-        .canvas-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
-        .canvas-box { border: 2px solid #808080; background: white; position: relative; }
-        canvas { cursor: crosshair; display: block; }
-        .pallete { display: grid; grid-template-columns: repeat(5, 25px); gap: 3px; }
-        .color-swatch { width: 25px; height: 25px; border: 1px solid #000; cursor: pointer; }
-        button { cursor: pointer; padding: 5px 10px; }
-        .active-color { outline: 2px solid #000; outline-offset: 2px; }
+        body { background: #e0e0e0; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        .toolbar { background: #fff; padding: 10px; border-radius: 8px; margin: 10px; display: flex; gap: 10px; align-items: center; border: 1px solid #ccc; }
+        .canvases { display: flex; gap: 20px; }
+        canvas { border: 2px solid #333; background: #fff; cursor: crosshair; }
+        .color-btn { width: 25px; height: 25px; border: 1px solid #000; cursor: pointer; display: inline-block; }
     </style>
 </head>
 <body>
 
     <div class="toolbar">
-        <strong>رفع صورة:</strong> <input type="file" id="imgUpload" accept="image/*">
-        <strong>حجم الفرشاة:</strong> <input type="range" id="size" min="1" max="30" value="5">
-        <strong>الألوان:</strong> <div class="pallete" id="pallete"></div>
-        <button onclick="setMode('brush')">فرشاة</button>
-        <button onclick="setMode('eraser')">ممحاة</button>
-        <button onclick="clearCanvas()">مسح الرسم</button>
-        <button onclick="saveArtwork()" style="background: #4caf50; color: white;">حفظ اللوحة</button>
+        <input type="file" id="upload" accept="image/*">
+        <label>الحجم: <input type="range" id="brushSize" min="1" max="20" value="5"></label>
+        <div id="palette"></div>
+        <button onclick="currentTool='brush'">فرشاة</button>
+        <button onclick="currentTool='eraser'">ممحاة</button>
+        <button onclick="clearAll()">مسح</button>
     </div>
 
-    <div class="canvas-container">
-        <div style="text-align: center;">
-            <p>مرجع الصورة (ملون):</p>
-            <div class="canvas-box"><canvas id="refCanvas" width="400" height="300"></canvas></div>
-        </div>
-        <div style="text-align: center;">
-            <p>لوحة الرسم (تلوين):</p>
-            <div class="canvas-box"><canvas id="mainCanvas" width="400" height="300"></canvas></div>
-        </div>
+    <div class="canvases">
+        <div><p>المرجع:</p><canvas id="ref" width="400" height="300"></canvas></div>
+        <div><p>التلوين:</p><canvas id="main" width="400" height="300"></canvas></div>
     </div>
 
-    <script>
-        const refCanvas = document.getElementById('refCanvas');
-        const mainCanvas = document.getElementById('mainCanvas');
-        const rc = refCanvas.getContext('2d');
-        const mc = mainCanvas.getContext('2d');
-        const pallete = document.getElementById('pallete');
-        
-        let currentColor = '#000000';
-        let currentMode = 'brush'; // brush or eraser
+<script>
+    const refCtx = document.getElementById('ref').getContext('2d');
+    const mainCtx = document.getElementById('main').getContext('2d');
+    const mainCanvas = document.getElementById('main');
+    let currentTool = 'brush';
+    let drawing = false;
 
-        // إنشاء لوحة الألوان
-        const colors = ['#000', '#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff', '#ffa500', '#800080', '#A52A2A', '#FFC0CB', '#808080', '#fff'];
-        colors.forEach(c => {
-            let div = document.createElement('div');
-            div.className = 'color-swatch';
-            div.style.background = c;
-            div.onclick = () => { currentColor = c; currentMode = 'brush'; };
-            pallete.appendChild(div);
-        });
+    // تهيئة الألوان
+    const colors = ['#000', '#f00', '#0f0', '#00f', '#ff0', '#f0f', '#ffa500'];
+    colors.forEach(c => {
+        let b = document.createElement('div');
+        b.className = 'color-btn';
+        b.style.background = c;
+        b.onclick = () => { color = c; currentTool = 'brush'; };
+        document.getElementById('palette').appendChild(b);
+    });
+    let color = '#000';
 
-        // رفع الصورة للمرجع
-        document.getElementById('imgUpload').onchange = (e) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    rc.drawImage(img, 0, 0, 400, 300);
-                    createSketch(img);
-                };
-                img.src = event.target.result;
+    // رفع ومعالجة الصورة
+    document.getElementById('upload').onchange = function(e) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                // رسم المرجع
+                refCtx.drawImage(img, 0, 0, 400, 300);
+                // رسم التلوين (سكتش بسيط بدون فلتر معقد لتجنب الأخطاء)
+                mainCtx.drawImage(img, 0, 0, 400, 300);
+                mainCtx.globalCompositeOperation = 'source-atop';
+                mainCtx.fillStyle = 'rgba(255,255,255,0.8)'; // تفتيح الصورة لتصبح كالسكتش
+                mainCtx.fillRect(0,0,400,300);
+                mainCtx.globalCompositeOperation = 'source-over';
             };
-            reader.readAsDataURL(e.target.files[0]);
+            img.src = event.target.result;
         };
+        reader.readAsDataURL(e.target.files[0]);
+    };
 
-        function createSketch(img) {
-            mc.filter = 'grayscale(100%) contrast(200%) brightness(120%)';
-            mc.drawImage(img, 0, 0, 400, 300);
-            mc.filter = 'none';
-        }
+    // الرسم
+    mainCanvas.onmousedown = () => drawing = true;
+    mainCanvas.onmouseup = () => { drawing = false; mainCtx.beginPath(); };
+    mainCanvas.onmousemove = function(e) {
+        if (!drawing) return;
+        const rect = mainCanvas.getBoundingClientRect();
+        mainCtx.lineWidth = document.getElementById('brushSize').value;
+        mainCtx.strokeStyle = (currentTool === 'eraser') ? '#fff' : color;
+        mainCtx.lineCap = 'round';
+        mainCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        mainCtx.stroke();
+        mainCtx.beginPath();
+        mainCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    };
 
-        function setMode(mode) { currentMode = mode; }
-
-        // أدوات الرسم
-        let drawing = false;
-        mainCanvas.onmousedown = () => drawing = true;
-        mainCanvas.onmouseup = () => { drawing = false; mc.beginPath(); };
-        mainCanvas.onmousemove = (e) => {
-            if(!drawing) return;
-            const rect = mainCanvas.getBoundingClientRect();
-            mc.lineWidth = document.getElementById('size').value;
-            mc.strokeStyle = (currentMode === 'eraser') ? '#fff' : currentColor;
-            mc.lineCap = 'round';
-            mc.lineJoin = 'round';
-            mc.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            mc.stroke();
-            mc.beginPath();
-            mc.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        };
-
-        function clearCanvas() { 
-            if(confirm("هل أنت متأكد من مسح الرسم؟")) {
-                mc.clearRect(0,0,400,300);
-            }
-        }
-
-        function saveArtwork() { 
-            const link = document.createElement('a');
-            link.download = 'لوحتي.png';
-            link.href = mainCanvas.toDataURL();
-            link.click();
-        }
-    </script>
+    function clearAll() { mainCtx.clearRect(0,0,400,300); }
+</script>
 </body>
 </html>
