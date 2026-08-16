@@ -84,6 +84,7 @@
     .btn-warning { background: #f59e0b; color: #111; }
     .btn-danger { background: #ef4444; }
     .btn-success { background: #10b981; }
+    .btn-info { background: #06b6d4; }
 
     .main-layout {
       display: flex;
@@ -350,6 +351,7 @@
     <div class="top-actions">
       <label for="imageLoader" class="btn btn-primary">📁 رفع صورة جديدة</label>
       <input type="file" id="imageLoader" accept="image/*" style="display:none;">
+      <button id="btnLockImage" class="btn btn-info" style="display:none;">📌 تثبيت الصورة</button>
       <button id="btnOutline" class="btn btn-purple">✨ تفريغ الألوان (أسود وأبيض)</button>
       <button id="btnUndo" class="btn btn-warning">↩️ تراجع</button>
       <button id="btnClear" class="btn btn-danger">🗑️ مسح الكل</button>
@@ -423,7 +425,6 @@
         </div>
       </div>
 
-      <!-- الأشكال الهندسية مع خيار التعبئة -->
       <div class="tool-section">
         <h3>📐 الأشكال الهندسية</h3>
         <div class="grid-buttons">
@@ -525,6 +526,15 @@
     let undoStack = [];
     let currentZoom = 1.0;
 
+    // كائن التحكم بالصورة المرفوعة والتحريك والتكبير والتصغير
+    let uploadedImgObj = null;
+    let imgTransform = { x: 50, y: 50, w: 300, h: 300 };
+    let isDraggingImg = false;
+    let isResizingImg = false;
+    let resizeHandle = null;
+    let dragStart = { x: 0, y: 0 };
+    const handleSize = 10;
+
     function updateCanvasZoom() {
       canvas.style.transform = `scale(${currentZoom})`;
       document.getElementById('zoomLevelText').innerText = `${Math.round(currentZoom * 100)}%`;
@@ -558,14 +568,71 @@
       undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     }
 
+    function redrawCanvas() {
+      if (undoStack.length > 0) {
+        ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
+      }
+      if (uploadedImgObj) {
+        ctx.drawImage(uploadedImgObj, imgTransform.x, imgTransform.y, imgTransform.w, imgTransform.h);
+        drawImgHandles();
+      }
+    }
+
+    function drawImgHandles() {
+      ctx.save();
+      ctx.strokeStyle = '#7a5af8';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.strokeRect(imgTransform.x, imgTransform.y, imgTransform.w, imgTransform.h);
+      ctx.restore();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#7a5af8';
+      ctx.lineWidth = 2;
+
+      const handles = getHandles();
+      for (let key in handles) {
+        const h = handles[key];
+        ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+        ctx.strokeRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+      }
+    }
+
+    function getHandles() {
+      const { x, y, w, h } = imgTransform;
+      return {
+        tl: { x: x, y: y },
+        tr: { x: x + w, y: y },
+        bl: { x: x, y: y + h },
+        br: { x: x + w, y: y + h },
+        tc: { x: x + w / 2, y: y },
+        bc: { x: x + w / 2, y: y + h },
+        lc: { x: x, y: y + h / 2 },
+        rc: { x: x + w, y: y + h / 2 }
+      };
+    }
+
+    document.getElementById('btnLockImage').onclick = () => {
+      if (uploadedImgObj) {
+        uploadedImgObj = null;
+        document.getElementById('btnLockImage').style.display = 'none';
+        redrawCanvas();
+        saveState();
+      }
+    };
+
     document.getElementById('btnUndo').onclick = () => {
       if (undoStack.length > 1) {
         undoStack.pop();
+        uploadedImgObj = null;
+        document.getElementById('btnLockImage').style.display = 'none';
         ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
       }
     };
 
     document.getElementById('btnClear').onclick = () => {
+      uploadedImgObj = null;
+      document.getElementById('btnLockImage').style.display = 'none';
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       saveState();
@@ -587,8 +654,21 @@
         const img = new Image();
         img.onload = () => {
           originalImage = img;
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          saveState();
+          uploadedImgObj = img;
+
+          let aspect = img.naturalWidth / img.naturalHeight;
+          let defaultW = Math.min(canvas.width * 0.7, img.naturalWidth);
+          let defaultH = defaultW / aspect;
+
+          imgTransform = {
+            x: (canvas.width - defaultW) / 2,
+            y: (canvas.height - defaultH) / 2,
+            w: defaultW,
+            h: defaultH
+          };
+
+          document.getElementById('btnLockImage').style.display = 'inline-flex';
+          redrawCanvas();
 
           document.getElementById('referenceImage').src = img.src;
           document.getElementById('referenceWrapper').style.display = 'block';
@@ -650,6 +730,8 @@
         outData[idx + 3] = 255;
       }
 
+      uploadedImgObj = null;
+      document.getElementById('btnLockImage').style.display = 'none';
       ctx.putImageData(output, 0, 0);
       saveState();
     };
@@ -746,8 +828,33 @@
     }
 
     canvas.onmousedown = (e) => {
-      isDrawing = true;
       const pos = getPos(e);
+
+      if (uploadedImgObj) {
+        const handles = getHandles();
+        for (let key in handles) {
+          const h = handles[key];
+          if (Math.hypot(pos.x - h.x, pos.y - h.y) <= handleSize) {
+            isResizingImg = true;
+            resizeHandle = key;
+            dragStart = pos;
+            return;
+          }
+        }
+
+        if (
+          pos.x >= imgTransform.x &&
+          pos.x <= imgTransform.x + imgTransform.w &&
+          pos.y >= imgTransform.y &&
+          pos.y <= imgTransform.y + imgTransform.h
+        ) {
+          isDraggingImg = true;
+          dragStart = { x: pos.x - imgTransform.x, y: pos.y - imgTransform.y };
+          return;
+        }
+      }
+
+      isDrawing = true;
       startX = pos.x;
       startY = pos.y;
       snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -770,8 +877,33 @@
     };
 
     canvas.onmousemove = (e) => {
-      if (!isDrawing) return;
       const pos = getPos(e);
+
+      if (isResizingImg) {
+        const dx = pos.x - dragStart.x;
+        const dy = pos.y - dragStart.y;
+        dragStart = pos;
+
+        if (resizeHandle.includes('r')) imgTransform.w += dx;
+        if (resizeHandle.includes('l')) { imgTransform.x += dx; imgTransform.w -= dx; }
+        if (resizeHandle.includes('b')) imgTransform.h += dy;
+        if (resizeHandle.includes('t')) { imgTransform.y += dy; imgTransform.h -= dy; }
+
+        if (imgTransform.w < 20) imgTransform.w = 20;
+        if (imgTransform.h < 20) imgTransform.h = 20;
+
+        redrawCanvas();
+        return;
+      }
+
+      if (isDraggingImg) {
+        imgTransform.x = pos.x - dragStart.x;
+        imgTransform.y = pos.y - dragStart.y;
+        redrawCanvas();
+        return;
+      }
+
+      if (!isDrawing) return;
 
       if (['rectangle', 'circle', 'triangle', 'star'].includes(currentTool)) {
         ctx.putImageData(snapshot, 0, 0);
@@ -819,6 +951,12 @@
     };
 
     canvas.onmouseup = () => {
+      if (isResizingImg || isDraggingImg) {
+        isResizingImg = false;
+        isDraggingImg = false;
+        return;
+      }
+
       if (isDrawing) {
         isDrawing = false;
         saveState();
