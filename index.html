@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>استوديو تحويل وتلوين الصور الاحترافي</title>
+    <title>استوديو كتب التلوين الاحترافي</title>
     <style>
         :root {
             --primary-color: #4f46e5;
@@ -148,6 +148,22 @@
             background-color: #4b5563;
         }
 
+        .btn-success {
+            background-color: #10b981;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-warning {
+            background-color: #f59e0b;
+        }
+
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+
         .canvas-wrapper {
             position: relative;
             border: 2px dashed var(--border-color);
@@ -179,7 +195,7 @@
             overflow: hidden;
             display: inline-block;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .upload-btn-wrapper input[type=file] {
@@ -197,7 +213,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -213,23 +229,28 @@
 <body>
 
     <header>
-        <h1>استوديو تحويل وتلوين الصور الاحترافي</h1>
-        <p>ارفع صورتك ليتم تحويلها إلى رسمة سكتش بقلم الرصاص بنفس النمط الفني المطلوب</p>
+        <h1>استوديو كتب التلوين الاحترافي</h1>
+        <p>ارفع صورتك الملونة، ثم اضغط على زر تحويلها لرسمة تلوين متى شئت</p>
     </header>
 
     <div class="main-container">
         <!-- لوحة التحكم -->
         <div class="card controls-panel">
             
-            <div class="section-title">📁 ارفع صورتك الشخصية</div>
+            <div class="section-title">📁 رفع الصورة</div>
             <div class="upload-btn-wrapper">
-                <button class="btn" style="background-color: #10b981;">اختر صورة من جهازك</button>
+                <button class="btn btn-success">اختر صورة ملونة</button>
                 <input type="file" id="imageUploader" accept="image/png, image/jpeg, image/jpg" />
             </div>
-            <p style="font-size: 0.8rem; color: #6b7280; margin-top: -5px;">سيتم تحويلها تلقائياً بالذكاء الاصطناعي إلى رسمة رصاص فنية.</p>
+
+            <div class="tools-group" style="border-top: none; padding-top: 0;">
+                <div class="section-title" style="margin-bottom: 5px;">🪄 تحويل وتجهيز</div>
+                <button class="btn btn-warning" onclick="convertToColoringBook()" style="color: white;">🎨 تحويل إلى كتاب تلوين (سكتش)</button>
+                <button class="btn btn-secondary" onclick="restoreOriginalImage()">🔄 استعادة الصورة الأصلية الملونة</button>
+            </div>
 
             <div class="tools-group">
-                <div class="section-title" style="margin-bottom: 5px;">🎨 أدوات التلوين</div>
+                <div class="section-title" style="margin-bottom: 5px;">🖌️ أدوات التلوين</div>
                 
                 <div class="tool-row">
                     <label>لون الفرشاة:</label>
@@ -249,23 +270,23 @@
 
             <div class="tools-group">
                 <button class="btn btn-secondary" onclick="undoAction()" style="background-color: #f59e0b;">↩️ تراجع عن الخطوة</button>
-                <button class="btn btn-secondary" onclick="clearCanvas()">مسح الألوان فقط</button>
-                <button class="btn btn-secondary" onclick="resetCanvasBackground()" style="background-color: #ef4444;">مسح اللوحة بالكامل</button>
+                <button class="btn btn-secondary" onclick="clearColorsOnly()">مسح الألوان المضافة</button>
+                <button class="btn btn-secondary" onclick="resetCanvasBackground()" style="background-color: #ef4444;">إفراغ اللوحة تماماً</button>
             </div>
         </div>
 
         <!-- لوحة الرسم والعرض -->
         <div class="card canvas-panel">
-            <div class="section-title">لوحة الرسم والتلوين</div>
+            <div class="section-title">لوحة العمل</div>
             <div class="canvas-wrapper" id="canvasWrapper">
                 <div class="loading-overlay" id="loadingOverlay">
-                    <span>جاري تحويل الصورة إلى رسمة سكتش فنية بالذكاء الاصطناعي... ✏️</span>
+                    <span>جاري المعالجة... ⏳</span>
                 </div>
                 <canvas id="drawingCanvas" width="500" height="380"></canvas>
             </div>
             
             <div class="actions-row">
-                <button class="btn" onclick="saveImage()">💾 حفظ الصورة الملونة</button>
+                <button class="btn" onclick="saveImage()">💾 حفظ الصورة النهائية</button>
             </div>
         </div>
     </div>
@@ -280,7 +301,8 @@
 
         let isDrawing = false;
         let isEraser = false;
-        let currentImageObj = null;
+        let originalImageObj = null; // الاحتفاظ بالصورة الأصلية الملونة
+        let currentModeObj = null;   // الصورة الحالية (سواء أصلية أو محولة لسكتش)
         let undoStack = [];
 
         window.onload = () => {
@@ -292,21 +314,22 @@
             ctx.fillStyle = "#6b7280";
             ctx.font = "15px 'Segoe UI'";
             ctx.textAlign = "center";
-            ctx.fillText("قم برفع صورتك من القائمة الجانبية لتحويلها إلى رسمة فنية", canvas.width / 2, canvas.height / 2);
+            ctx.fillText("قم برفع صورة ملونة من القائمة الجانبية للبدء", canvas.width / 2, canvas.height / 2);
         }
 
         function resetCanvasBackground() {
             ctx.globalCompositeOperation = 'source-over';
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            currentImageObj = null;
+            originalImageObj = null;
+            currentModeObj = null;
             undoStack = [];
             imageUploader.value = '';
         }
 
         function saveState() {
             undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-            if (undoStack.length > 20) undoStack.shift();
+            if (undoStack.length > 25) undoStack.shift();
         }
 
         function undoAction() {
@@ -318,116 +341,133 @@
             }
         }
 
-        // تحويل الصورة المرفوعة إلى رسمة سكتش بقلم الرصاص باستخدام نموذج ذكاء اصطناعي فني دقيق
-        imageUploader.addEventListener('change', async function(e) {
+        // عند رفع الصورة: تظهر ملونة كما هي تماماً وبدون أي تعديل
+        imageUploader.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
             loadingOverlay.style.display = 'flex';
 
-            // قراءة الصورة المرفوعة وتحويلها لـ Base64 لإرسالها للنموذج الفني
             const reader = new FileReader();
-            reader.onload = async function(event) {
-                const base64Image = event.target.result;
-
-                try {
-                    // استخدام محرك تذكية بصري يحاكي رسمات السكتش بقلم الرصاص ذات التظليل الدقيق
-                    const promptText = encodeURIComponent("pencil sketch portrait, detailed shading, hand-drawn fine lines, artistic sketch on light textured paper, masterpiece");
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    resetCanvasBackground();
                     
-                    // إرسال الصورة للنموذج العالمي لتحويلها للستايل المطلوب
-                    const aiApiUrl = `https://image.pollinations.ai/prompt/${promptText}?width=500&height=380&nologo=true&private=true&seed=${Math.random()}`;
+                    const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                    const newWidth = img.width * scale;
+                    const newHeight = img.height * scale;
+                    const x = (canvas.width / 2) - (newWidth / 2);
+                    const y = (canvas.height / 2) - (newHeight / 2);
 
-                    const img = new Image();
-                    img.crossOrigin = "anonymous";
-                    
-                    // نمرر الصورة الأصلية كمصدر استرشادي للذكاء الاصطناعي عبر رابط مؤقت أو نقوم بمعالجتها
-                    // وبما أننا نستخدم محرك تحويل متقدم، سنعتمد على دمج دقيق يعطي مظهر السكتش المحترف:
-                    img.onload = function() {
-                        resetCanvasBackground();
-                        const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-                        const newWidth = img.width * scale;
-                        const newHeight = img.height * scale;
-                        const x = (canvas.width / 2) - (newWidth / 2);
-                        const y = (canvas.height / 2) - (newHeight / 2);
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, x, y, newWidth, newHeight);
 
-                        ctx.drawImage(img, x, y, newWidth, newHeight);
-                        currentImageObj = img;
+                    // حفظ النسخة الأصلية الملونة
+                    originalImageObj = new Image();
+                    originalImageObj.src = canvas.toDataURL();
+                    originalImageObj.onload = function() {
+                        currentModeObj = originalImageObj;
                         saveState();
                         loadingOverlay.style.display = 'none';
                     };
-
-                    img.onerror = function() {
-                        // خيار احتياطي في حال بطء الشبكة: تفعيل الفلتر الفني المتقدم محلياً
-                        fallbackAdvancedSketch(base64Image);
-                    };
-
-                    img.src = aiApiUrl;
-
-                } catch (err) {
-                    fallbackAdvancedSketch(base64Image);
                 }
-            };
+                img.src = event.target.result;
+            }
             reader.readAsDataURL(file);
         });
 
-        // فلتر احتياطي متقدم جداً يحاكي السكتش الفني بدقة عالية في حال انقطاع الاتصال
-        function fallbackAdvancedSketch(srcData) {
-            const img = new Image();
-            img.onload = function() {
-                resetCanvasBackground();
-                const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-                const newWidth = img.width * scale;
-                const newHeight = img.height * scale;
-                const x = (canvas.width / 2) - (newWidth / 2);
-                const y = (canvas.height / 2) - (newHeight / 2);
+        // زر التحويل إلى كتاب تلوين (توليد خطوط وتحديدات أبيض وأسود نظيفة جداً)
+        function convertToColoringBook() {
+            if (!originalImageObj) {
+                alert("الرجاء رفع صورة ملونة أولاً!");
+                return;
+            }
 
+            loadingOverlay.style.display = 'flex';
+            setTimeout(() => {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = canvas.width;
                 tempCanvas.height = canvas.height;
                 const tCtx = tempCanvas.getContext('2d');
-                tCtx.fillStyle = "#fdfbf7"; // لون ورقة سكتش طبيعية
+
+                tCtx.fillStyle = "#ffffff";
                 tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                tCtx.drawImage(img, x, y, newWidth, newHeight);
+                tCtx.drawImage(originalImageObj, 0, 0);
 
                 const imgData = tCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
                 const data = imgData.data;
 
-                for (let i = 0; i < data.length; i += 4) {
-                    let r = data[i], g = data[i + 1], b = data[i + 2];
-                    let v = 0.3 * r + 0.59 * g + 0.11 * b; // تحويل لتدرج رمادي ناعم
-                    // زيادة التباين وإعطاء طابع قلم الرصاص الداكن
-                    let sketchVal = v < 100 ? v * 0.7 : (v > 200 ? 255 : v);
-                    data[i] = sketchVal;
-                    data[i + 1] = sketchVal;
-                    data[i + 2] = sketchVal;
+                // تحويل مخصص لاكتشاف الحواف وإبراز الخطوط تماماً مثل كتب التلوين
+                let width = tempCanvas.width;
+                let height = tempCanvas.height;
+                let gray = new Float32Array(width * height);
+
+                for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+                    gray[j] = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
                 }
 
-                tCtx.putImageData(imgData, 0, 0);
-                ctx.drawImage(tempCanvas, 0, 0);
+                let edgeData = tCtx.createImageData(width, height);
+                let ed = edgeData.data;
 
-                let processedImg = new Image();
-                processedImg.src = tempCanvas.toDataURL();
-                processedImg.onload = function() {
-                    currentImageObj = processedImg;
+                for (let y = 1; y < height - 1; y++) {
+                    for (let x = 1; x < width - 1; x++) {
+                        let idx = y * width + x;
+                        // حساب الـ Sobel Operator البسيط لاستخراج الحواف والخطوط السوداء النظيفة
+                        let gx = -gray[idx - width - 1] + gray[idx - width + 1]
+                                 -2 * gray[idx - 1] + 2 * gray[idx + 1]
+                                 -gray[idx + width - 1] + gray[idx + width + 1];
+                        
+                        let gy = -gray[idx - width - 1] - 2 * gray[idx - width] - gray[idx - width + 1]
+                                 +gray[idx + width - 1] + 2 * gray[idx + width] + gray[idx + width + 1];
+
+                        let val = Math.sqrt(gx * gx + gy * gy);
+                        let p = val > 35 ? 0 : 255; // خطوط سوداء واضحة على خلفية بيضاء
+
+                        let i4 = idx * 4;
+                        ed[i4] = p;
+                        ed[i4 + 1] = p;
+                        ed[i4 + 2] = p;
+                        ed[i4 + 3] = 255;
+                    }
+                }
+
+                tCtx.putImageData(edgeData, 0, 0);
+                
+                let sketchImg = new Image();
+                sketchImg.src = tempCanvas.toDataURL();
+                sketchImg.onload = function() {
+                    ctx.drawImage(sketchImg, 0, 0);
+                    currentModeObj = sketchImg;
                     saveState();
                     loadingOverlay.style.display = 'none';
                 };
-            };
-            img.src = srcData;
+            }, 50);
         }
 
-        function clearCanvas() {
-            if (confirm("هل أنت متأكد من مسح الألوان المضافة؟")) {
-                if (currentImageObj) {
-                    ctx.globalCompositeOperation = 'source-over';
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(currentImageObj, 0, 0, canvas.width, canvas.height);
-                    saveState();
-                } else {
-                    resetCanvasBackground();
-                    drawDefaultWelcome();
-                }
+        // زر استعادة الصورة الأصلية الملونة
+        function restoreOriginalImage() {
+            if (!originalImageObj) {
+                alert("لا توجد صورة مرفوعة!");
+                return;
+            }
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(originalImageObj, 0, 0);
+            currentModeObj = originalImageObj;
+            saveState();
+        }
+
+        function clearColorsOnly() {
+            if (currentModeObj) {
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(currentModeObj, 0, 0);
+                saveState();
+            } else {
+                resetCanvasBackground();
+                drawDefaultWelcome();
             }
         }
 
@@ -464,7 +504,7 @@
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.strokeStyle = 'rgba(0,0,0,1)';
             } else {
-                ctx.globalCompositeOperation = 'multiply'; // يجعل الألوان تندمج بسلاسة مع خطوط وسكتش القلم
+                ctx.globalCompositeOperation = 'multiply'; // يتيح التلوين فوق الخطوط بانسجام تام
                 ctx.strokeStyle = colorPicker.value;
             }
 
@@ -497,7 +537,7 @@
             tCtx.drawImage(canvas, 0, 0);
 
             const link = document.createElement('a');
-            link.download = 'sketch-colored-artwork.png';
+            link.download = 'coloring-book-image.png';
             link.href = tempCanvas.toDataURL();
             link.click();
         }
