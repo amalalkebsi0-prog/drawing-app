@@ -8,11 +8,14 @@
         body { background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: sans-serif; }
         .main-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
         .canvas-wrapper { border: 4px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: white; cursor: crosshair; }
-        .controls { display: flex; flex-direction: column; gap: 10px; width: 300px; }
+        .controls { display: flex; flex-direction: column; gap: 10px; width: 280px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         button { padding: 10px; cursor: pointer; border-radius: 5px; border: none; background: var(--primary); color: white; font-weight: bold; }
+        button:hover { opacity: 0.9; }
         .btn-reset { background: #ef4444; }
         .btn-undo { background: #f59e0b; }
-        input[type="file"] { margin-bottom: 10px; }
+        .btn-clear-colors { background: #0d9488; }
+        input[type="file"] { margin-bottom: 5px; }
+        select, input[type="range"] { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
@@ -21,25 +24,38 @@
     
     <div class="main-container">
         <div class="controls">
+            <label>رفع صورة:</label>
             <input type="file" id="imageUploader" accept="image/*">
+            
             <button onclick="applyColoringBookFilter()">تحويل لرسمة تلوين</button>
-            <button onclick="restoreOriginal()">استعادة الصورة الأصلية</button>
-            <hr style="width:100%">
-            <label>لون الفرشاة: <input type="color" id="colorPicker" value="#ff4757"></label>
-            <label>حجم الفرشاة: <input type="range" id="brushSize" min="2" max="20" value="5"></label>
-            <button class="btn-undo" onclick="undo()">تراجع عن التلوين</button>
-            <button class="btn-reset" onclick="clearColors()">مسح الألوان فقط</button>
+            
+            <label>الأداة:</label>
+            <select id="toolSelector">
+                <option value="brush">فرشاة</option>
+                <option value="pencil">قلم دقيق</option>
+                <option value="eraser">ممحاة</option>
+            </select>
+
+            <label>لون الفرشاة: <input type="color" id="colorPicker" value="#ff4757" style="width:100%; height:35px; border:none; cursor:pointer;"></label>
+            
+            <label>حجم الفرشاة:</label>
+            <input type="range" id="brushSize" min="2" max="30" value="5">
+
+            <button class="btn-undo" onclick="undo()">تراجع</button>
+            <button class="btn-clear-colors" onclick="clearColors()">تفريغ الألوان</button>
+            <button class="btn-reset" onclick="restoreOriginal()">استعادة الصورة الأصلية</button>
         </div>
 
         <div class="canvas-wrapper">
-            <canvas id="drawingCanvas" width="500" height="400"></canvas>
+            <!-- لوحة رسم أكبر وأوضح -->
+            <canvas id="drawingCanvas" width="700" height="500"></canvas>
         </div>
     </div>
 
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
-        let originalImageData = null;
+        let originalImageObj = null;
         let drawing = false;
         let undoStack = [];
 
@@ -51,7 +67,7 @@
                 img.onload = function() {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    originalImageObj = img;
                     saveState();
                 };
                 img.src = event.target.result;
@@ -59,19 +75,15 @@
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        // تحويل الصورة لرسمة تلوين
+        // تحويل الصورة لرسمة تلوين نظيفة
         function applyColoringBookFilter() {
-            if (!originalImageData) return;
+            if (!originalImageObj) return;
             saveState();
-            let width = canvas.width;
-            let height = canvas.height;
-            let tempCanvas = document.createElement('canvas');
-            tempCanvas.width = width;
-            tempCanvas.height = height;
-            let tCtx = tempCanvas.getContext('2d');
-            tCtx.putImageData(originalImageData, 0, 0);
             
-            let imgData = tCtx.getImageData(0, 0, width, height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
+            
+            let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             let data = imgData.data;
 
             for (let i = 0; i < data.length; i += 4) {
@@ -79,33 +91,74 @@
                 data[i] = data[i+1] = data[i+2] = gray;
             }
 
-            for (let y = 1; y < height - 1; y++) {
-                for (let x = 1; x < width - 1; x++) {
-                    let idx = (y * width + x) * 4;
-                    let diff = Math.abs(data[idx] - data[((y+1) * width + x + 1) * 4]);
+            for (let y = 1; y < canvas.height - 1; y++) {
+                for (let x = 1; x < canvas.width - 1; x++) {
+                    let idx = (y * canvas.width + x) * 4;
+                    let diff = Math.abs(data[idx] - data[((y+1) * canvas.width + x + 1) * 4]);
                     let color = diff > 15 ? 0 : 255;
                     data[idx] = data[idx+1] = data[idx+2] = color;
                 }
             }
             ctx.putImageData(imgData, 0, 0);
+            saveState();
         }
 
         function restoreOriginal() {
-            if (originalImageData) ctx.putImageData(originalImageData, 0, 0);
+            if (originalImageObj) {
+                saveState();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
+            }
         }
 
-        function saveState() { undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height)); }
-        function undo() { if (undoStack.length > 1) { undoStack.pop(); ctx.putImageData(undoStack[undoStack.length-1], 0, 0); } }
-        function clearColors() { restoreOriginal(); }
+        function saveState() { 
+            undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height)); 
+            if (undoStack.length > 20) undoStack.shift();
+        }
 
-        canvas.onmousedown = () => { saveState(); drawing = true; };
+        function undo() { 
+            if (undoStack.length > 1) { 
+                undoStack.pop(); 
+                ctx.putImageData(undoStack[undoStack.length-1], 0, 0); 
+            } else {
+                alert("لا توجد خطوات للتراجع عنها!");
+            }
+        }
+
+        function clearColors() { 
+            restoreOriginal(); 
+        }
+
+        canvas.onmousedown = (e) => { 
+            saveState(); 
+            drawing = true; 
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        };
+
         canvas.onmouseup = () => { drawing = false; ctx.beginPath(); };
+        canvas.onmouseleave = () => { drawing = false; ctx.beginPath(); };
+
         canvas.onmousemove = (e) => {
             if (!drawing) return;
-            ctx.lineWidth = document.getElementById('brushSize').value;
-            ctx.strokeStyle = document.getElementById('colorPicker').value;
-            ctx.globalCompositeOperation = 'multiply';
+            const tool = document.getElementById('toolSelector').value;
+            const size = document.getElementById('brushSize').value;
+            const color = document.getElementById('colorPicker').value;
+            
+            ctx.lineWidth = size;
             ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if (tool === 'eraser') {
+                ctx.strokeStyle = '#ffffff';
+            } else if (tool === 'pencil') {
+                ctx.lineWidth = Math.min(size, 3);
+                ctx.strokeStyle = color;
+            } else {
+                ctx.strokeStyle = color;
+            }
+
             const rect = canvas.getBoundingClientRect();
             ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
             ctx.stroke();
