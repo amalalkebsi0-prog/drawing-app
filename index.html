@@ -147,7 +147,6 @@
       cursor: crosshair;
     }
 
-    /* شاشة عرض ثابتة للصورة المرفوعة */
     .preview-panel {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -163,9 +162,6 @@
     .preview-panel h4 {
       font-size: 0.9rem;
       color: var(--text-sub);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
     }
 
     .preview-screen {
@@ -178,7 +174,6 @@
       justify-content: center;
       align-items: center;
       overflow: hidden;
-      position: relative;
     }
 
     .preview-screen img {
@@ -191,7 +186,6 @@
       color: var(--text-sub);
       font-size: 0.8rem;
       text-align: center;
-      padding: 10px;
     }
 
     .sidebar {
@@ -244,10 +238,8 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: background 0.2s;
     }
 
-    .tool-btn:hover { background: #343861; }
     .tool-btn.active { background: #6366f1; border-color: #6366f1; }
 
     .btn-magic-eraser {
@@ -324,7 +316,6 @@
       <button id="btnOutline" class="btn btn-outline">✨ تفريغ الألوان (أسود وأبيض)</button>
       <button id="btnRemoveBg" class="btn btn-remove-bg">🪄 إزالة الخلفية</button>
       
-      <!-- زر رفع الملف المصحح -->
       <button type="button" id="btnUploadTrigger" class="btn btn-upload">📁 رفع صورة جديدة</button>
       <input type="file" id="imageLoader" accept="image/*" style="display:none;">
     </div>
@@ -338,9 +329,7 @@
         <h3>لوحة الرسم والتلوين:</h3>
         <div class="zoom-controls">
           <span style="font-size:0.8rem; color:var(--text-sub); margin-left:8px;">100%</span>
-          <button class="zoom-btn">🎯 إعادة ضبط</button>
-          <button class="zoom-btn">🔍- تصغير</button>
-          <button class="zoom-btn">🔍+ تكبير</button>
+          <button class="zoom-btn" id="btnResetCanvas">🎯 إعادة ضبط</button>
         </div>
       </div>
 
@@ -349,10 +338,9 @@
           <canvas id="paintCanvas" width="800" height="520"></canvas>
         </div>
 
-        <!-- الشاشة الثابتة لمعاينة الصورة المرفوعة -->
         <div class="preview-panel">
           <h4>🖼️ الصورة المرفوعة (مرجع ثابت)</h4>
-          <div class="preview-screen" id="previewScreen">
+          <div class="preview-screen">
             <span class="placeholder-text" id="placeholderText">لا توجد صورة مرفوعة حالياً</span>
             <img id="previewImg" style="display:none;" alt="مرجع الصورة المرفوعة">
           </div>
@@ -411,10 +399,76 @@
 
   <script>
     const canvas = document.getElementById('paintCanvas');
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
+    let undoHistory = [];
+    let isDrawing = false;
+
+    function initCanvas() {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      saveState();
+    }
+
+    function saveState() {
+      if (undoHistory.length >= 15) undoHistory.shift();
+      undoHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    }
+
+    initCanvas();
+
+    // 1. زر حفظ اللوحة
+    document.getElementById('btnSave').onclick = function() {
+      const link = document.createElement('a');
+      link.download = 'my-drawing.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    };
+
+    // 2. زر مسح الكل
+    document.getElementById('btnClear').onclick = function() {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      saveState();
+    };
+
+    // 3. زر التراجع
+    document.getElementById('btnUndo').onclick = function() {
+      if (undoHistory.length > 1) {
+        undoHistory.pop();
+        ctx.putImageData(undoHistory[undoHistory.length - 1], 0, 0);
+      }
+    };
+
+    // 4. زر إزالة الخلفية البيضاء من الكانفاس
+    document.getElementById('btnRemoveBg').onclick = function() {
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] > 220 && data[i + 1] > 220 && data[i + 2] > 220) {
+          data[i + 3] = 0;
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      saveState();
+    };
+
+    // 5. زر تفريغ الألوان (تحويل لخطوط أسود وأبيض)
+    document.getElementById('btnOutline').onclick = function() {
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        const val = avg < 200 ? 0 : 255;
+        data[i] = val;
+        data[i + 1] = val;
+        data[i + 2] = val;
+      }
+      ctx.putImageData(imgData, 0, 0);
+      saveState();
+    };
+
+    // معالجة رفع الملف والخدمة المعاينة
     const btnUploadTrigger = document.getElementById('btnUploadTrigger');
     const imageLoader = document.getElementById('imageLoader');
     const previewImg = document.getElementById('previewImg');
@@ -423,13 +477,9 @@
 
     let loadedImageObj = null;
 
-    // تشغيل نافذة اختيار الملفات عند الضغط على زر الرفع
-    btnUploadTrigger.addEventListener('click', function() {
-      imageLoader.click();
-    });
+    btnUploadTrigger.onclick = () => imageLoader.click();
 
-    // معالجة اختيار الملف لعرضه في شاشة المعاينة الثابتة
-    imageLoader.addEventListener('change', function(e) {
+    imageLoader.onchange = function(e) {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
@@ -446,10 +496,9 @@
         };
         reader.readAsDataURL(file);
       }
-    });
+    };
 
-    // زر اختيار إدراج الصورة المرفوعة داخل لوحة الرسم
-    btnPlaceOnCanvas.addEventListener('click', function() {
+    btnPlaceOnCanvas.onclick = function() {
       if (loadedImageObj) {
         const scale = Math.min(canvas.width / loadedImageObj.width, canvas.height / loadedImageObj.height);
         const w = loadedImageObj.width * scale;
@@ -457,8 +506,33 @@
         const x = (canvas.width - w) / 2;
         const y = (canvas.height - h) / 2;
         ctx.drawImage(loadedImageObj, x, y, w, h);
+        saveState();
       }
-    });
+    };
+
+    // الرسم بالماوس
+    canvas.onmousedown = (e) => {
+      isDrawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    };
+
+    canvas.onmousemove = (e) => {
+      if (isDrawing) {
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+      }
+    };
+
+    canvas.onmouseup = () => {
+      if (isDrawing) {
+        isDrawing = false;
+        saveState();
+      }
+    };
   </script>
 </body>
 </html>
