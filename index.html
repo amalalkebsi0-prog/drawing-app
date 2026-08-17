@@ -95,13 +95,15 @@
       padding: 16px;
       border-radius: var(--radius);
       border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     .canvas-header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
     }
 
     .zoom-controls {
@@ -120,6 +122,13 @@
       font-size: 0.8rem;
     }
 
+    .work-area {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
     .canvas-container {
       background: #ffffff;
       border-radius: 8px;
@@ -128,12 +137,40 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      flex: 1;
+      min-width: 400px;
     }
 
     canvas {
       display: block;
       background-color: #ffffff;
       cursor: crosshair;
+    }
+
+    /* مربع الصورة المرفوعة المضاف حديثاً */
+    .uploaded-box {
+      background: var(--card-bg);
+      border: 2px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      width: 260px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .uploaded-box h4 {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    .uploaded-box img {
+      max-width: 100%;
+      max-height: 250px;
+      border-radius: 6px;
+      object-fit: contain;
+      border: 1px solid var(--border-color);
     }
 
     .sidebar {
@@ -189,14 +226,8 @@
       transition: background 0.2s;
     }
 
-    .tool-btn:hover {
-      background: #343861;
-    }
-
-    .tool-btn.active {
-      background: #6366f1;
-      border-color: #6366f1;
-    }
+    .tool-btn:hover { background: #343861; }
+    .tool-btn.active { background: #6366f1; border-color: #6366f1; }
 
     .btn-magic-eraser {
       grid-column: span 2;
@@ -260,10 +291,6 @@
       border: none;
       font-weight: 600;
     }
-
-    .site-link-btn:hover {
-      background: linear-gradient(135deg, #2563eb, #1e40af);
-    }
   </style>
 </head>
 <body>
@@ -293,8 +320,18 @@
           <button class="zoom-btn">🔍+ تكبير</button>
         </div>
       </div>
-      <div class="canvas-container">
-        <canvas id="paintCanvas" width="800" height="520"></canvas>
+
+      <div class="work-area">
+        <div class="canvas-container">
+          <canvas id="paintCanvas" width="800" height="520"></canvas>
+        </div>
+
+        <!-- حاوية المعاينة الخاصة بالصورة المرفوعة -->
+        <div class="uploaded-box" id="uploadedBox">
+          <h4>🖼️ الصورة المرفوعة (مرجع):</h4>
+          <img id="previewImg" src="" alt="المعاينة">
+          <button class="btn btn-upload" id="btnPlaceOnCanvas" style="width:100%; justify-content:center;">📥 إدراج باللوحة</button>
+        </div>
       </div>
     </div>
 
@@ -309,14 +346,13 @@
         </div>
       </div>
 
-      <!-- قسم الأزرار المضافة للمواقع المتخصصة بالرسم -->
       <div class="tool-section">
         <h3>🌐 مواقع رسم عالمية متخصصة</h3>
         <div class="grid-buttons">
           <a href="https://www.autodraw.com" target="_blank" class="tool-btn site-link-btn">🤖 AutoDraw</a>
           <a href="https://quickdraw.withgoogle.com" target="_blank" class="tool-btn site-link-btn">⚡ Quick Draw</a>
           <a href="https://sketchpad.app" target="_blank" class="tool-btn site-link-btn">🎨 Sketchpad</a>
-          <a href="https://aggie.io" target="_blank" class="tool-btn site-link-btn">👥 Aggie.io (رسم جماعي)</a>
+          <a href="https://aggie.io" target="_blank" class="tool-btn site-link-btn">👥 Aggie.io</a>
           <a href="https://kleki.com" target="_blank" class="tool-btn site-link-btn" style="grid-column: span 2;">🖌️ Kleki Paint</a>
         </div>
       </div>
@@ -336,7 +372,7 @@
 
       <div class="tool-section">
         <h3>🐼 مكتبة الملصقات الشاملة (CLIPART)</h3>
-        <input type="text" class="sticker-search-input" placeholder="🔍 ابحث (باندا، شمس، قطة، طائرة، بيتزا...)...">
+        <input type="text" class="sticker-search-input" placeholder="🔍 ابحث...">
         <div class="sticker-grid">
           <div class="sticker-card"><img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="25" fill="%23f59e0b"/></svg>' alt="شمس"></div>
           <div class="sticker-card"><img src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="55" r="35" fill="%23fb923c"/></svg>' alt="قطة"></div>
@@ -352,6 +388,43 @@
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const imageLoader = document.getElementById('imageLoader');
+    const uploadedBox = document.getElementById('uploadedBox');
+    const previewImg = document.getElementById('previewImg');
+    const btnPlaceOnCanvas = document.getElementById('btnPlaceOnCanvas');
+
+    let loadedImageObj = null;
+
+    // معالج رفع الصور وإظهار مربع المرفقات
+    imageLoader.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = new Image();
+          img.onload = function() {
+            loadedImageObj = img;
+            previewImg.src = event.target.result;
+            uploadedBox.style.display = 'flex'; // إظهار مربع المعاينة فوراً
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // إدراج الصورة المرفوعة داخل اللوحة الرئيسية
+    btnPlaceOnCanvas.addEventListener('click', function() {
+      if (loadedImageObj) {
+        const scale = Math.min(canvas.width / loadedImageObj.width, canvas.height / loadedImageObj.height);
+        const w = loadedImageObj.width * scale;
+        const h = loadedImageObj.height * scale;
+        const x = (canvas.width - w) / 2;
+        const y = (canvas.height - h) / 2;
+        ctx.drawImage(loadedImageObj, x, y, w, h);
+      }
+    });
   </script>
 </body>
 </html>
